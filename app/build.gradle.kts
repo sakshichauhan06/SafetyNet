@@ -59,6 +59,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
+
     // Android Maps Compose composables for the Maps SDK for Android
     implementation("com.google.maps.android:maps-compose:6.11.0")
 
@@ -68,4 +71,6 @@ dependencies {
 
     // google maps utils
     implementation("com.google.maps.android:android-maps-utils:3.19.0")
+
+    implementation("com.jakewharton.timber:timber:5.0.1")
 }
