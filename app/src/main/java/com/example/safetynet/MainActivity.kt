@@ -11,6 +11,10 @@ import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.theme.SafetyNetTheme
 import com.google.android.gms.location.LocationServices
 import data.LocationRepository
+import data.SafetyPinDatabase
+import data.SafetyPinRepository
+import usecases.GetAllPinsUseCase
+import usecases.SavePinUseCase
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,11 +23,23 @@ class MainActivity : ComponentActivity() {
         setContent {
             SafetyNetTheme {
                 val context = LocalContext.current
+
+                // location dependencies
                 val fusedLocationClient = remember {
                     LocationServices.getFusedLocationProviderClient(context)
                 }
                 val locationRepository = remember { LocationRepository(fusedLocationClient) }
-                val mapViewModel = remember { MapViewModel(locationRepository) }
+
+                // database and pin dependencies
+                val database = remember { SafetyPinDatabase.getDatabase(context) }
+                val safetyPinRepository = remember { SafetyPinRepository(database.safetyPinDao()) }
+                val savePinUseCase = remember { SavePinUseCase(safetyPinRepository) }
+                val getAllPinsUseCase = remember { GetAllPinsUseCase(safetyPinRepository) }
+
+
+                val mapViewModel = remember {
+                    MapViewModel(locationRepository, savePinUseCase, getAllPinsUseCase)
+                }
 
                 MapScreen(mapViewModel)
             }

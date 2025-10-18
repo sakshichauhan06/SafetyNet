@@ -11,10 +11,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.example.safetynet.ui.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import data.SafetyPin
 import timber.log.Timber
 
 
@@ -24,6 +26,8 @@ fun MapScreen(mapViewModel: MapViewModel) {
     val userLocation by mapViewModel.userLocation
     val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState()
+
+    val safetyPins by mapViewModel.safetyPins
 
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -50,11 +54,29 @@ fun MapScreen(mapViewModel: MapViewModel) {
         }
     }
 
+    // load pins when screen loads
+    LaunchedEffect(Unit) {
+        mapViewModel.loadAllPins()
+    }
+
     GoogleMap(
         modifier = Modifier
             .fillMaxSize(),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
+        onMapClick = { latLng ->
+            val newPin = SafetyPin(
+                latitude = latLng.latitude,
+                longitude = latLng.longitude,
+                severity = "RED",
+                shortDescription = "Unsafe area",
+                detailedDescription = "Details here",
+                timestamp = System.currentTimeMillis(),
+                isAnonymous = true
+            )
+            mapViewModel.savePin(newPin)
+        }
     ) {
+        // user location marker
         userLocation?.let { location ->
             Marker(
                 state = MarkerState(position = location),
@@ -67,6 +89,15 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     )
                 )
             }
+        }
+
+        // display all saved pins inside GoogleMap Block
+        safetyPins.forEach { pin ->
+            Marker(
+                state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
+                title = pin.shortDescription,
+                snippet = "Severity: ${pin.severity}"
+            )
         }
     }
 
