@@ -17,6 +17,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import data.SafetyPin
+import domain.SeverityLevel
 import timber.log.Timber
 
 
@@ -67,7 +68,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
             val newPin = SafetyPin(
                 latitude = latLng.latitude,
                 longitude = latLng.longitude,
-                severity = "RED",
+                severity = SeverityLevel.RED,
                 shortDescription = "Unsafe area",
                 detailedDescription = "Details here",
                 timestamp = System.currentTimeMillis(),

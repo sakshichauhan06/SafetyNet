@@ -2,13 +2,14 @@ package data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import domain.SeverityLevel
 
 @Entity
 data class SafetyPin(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val latitude: Double,
     val longitude: Double,
-    val severity: String, // later
+    val severity: SeverityLevel, // used enum class
     val shortDescription: String,
     val detailedDescription: String,
     val timestamp: Long,
