@@ -1,4 +1,91 @@
 package com.example.safetynet.ui.components
 
-class PinDetailsDialog {
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.safetynet.ui.theme.SafetyNetTheme
+import domain.SeverityLevel
+@Composable
+fun PinDetailsDialog(
+    onDismiss: () -> Unit,
+    onSave: (shortDesc: String, detailedDesc: String, severity: SeverityLevel) -> Unit
+) {
+    // state for the text fields
+    var shortDescription by remember { mutableStateOf("") }
+    var detailedDescription by remember { mutableStateOf("") }
+//    var selectedSeverity by remember { mutableStateOf<SeverityLevel?>(null) }
+    var selectedSeverityIndex by remember { mutableIntStateOf(0) }
+
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Report Location") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = shortDescription,
+                    onValueChange = { shortDescription = it },
+                    label = { Text("Short Description") }
+                )
+                OutlinedTextField(
+                    value = detailedDescription,
+                    onValueChange = { detailedDescription = it },
+                    label = { Text("Describe in Detail") }
+                )
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                ) {
+                    SeverityLevel.entries.forEachIndexed { index, level ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = SeverityLevel.entries.size
+                            ),
+                            onClick = { selectedSeverityIndex = index },
+                            selected = index == selectedSeverityIndex,
+                            label = { Text(level.displayName) }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val severity = SeverityLevel.entries[selectedSeverityIndex]
+                onSave(shortDescription, detailedDescription, severity)
+            }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PinDetailsDialogPreview() {
+    SafetyNetTheme {
+        PinDetailsDialog(
+            onDismiss = {},
+            onSave = { _, _, _ -> }
+        )
+    }
 }

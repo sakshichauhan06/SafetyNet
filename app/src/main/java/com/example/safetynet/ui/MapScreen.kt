@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.example.safetynet.ui.MapViewModel
+import com.example.safetynet.ui.components.PinDetailsDialog
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -29,6 +30,9 @@ fun MapScreen(mapViewModel: MapViewModel) {
     val cameraPositionState = rememberCameraPositionState()
 
     val safetyPins by mapViewModel.safetyPins
+
+    val showDialog by mapViewModel.showDialog
+    val tappedLocation by mapViewModel.tappedLocation
 
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -65,16 +69,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
             .fillMaxSize(),
         cameraPositionState = cameraPositionState,
         onMapClick = { latLng ->
-            val newPin = SafetyPin(
-                latitude = latLng.latitude,
-                longitude = latLng.longitude,
-                severity = SeverityLevel.RED,
-                shortDescription = "Unsafe area",
-                detailedDescription = "Details here",
-                timestamp = System.currentTimeMillis(),
-                isAnonymous = true
-            )
-            mapViewModel.savePin(newPin)
+            mapViewModel.onMapTapped(latLng)
         }
     ) {
         // user location marker
@@ -100,6 +95,25 @@ fun MapScreen(mapViewModel: MapViewModel) {
                 snippet = "Severity: ${pin.severity}"
             )
         }
+    }
+
+    if (showDialog && tappedLocation != null) {
+        PinDetailsDialog(
+            onDismiss = { mapViewModel.dismissDialog() },
+            onSave = { shortDesc, detailedDesc, severity ->
+                val newPin = SafetyPin(
+                    latitude = tappedLocation!!.latitude,
+                    longitude = tappedLocation!!.longitude,
+                    severity = severity,
+                    shortDescription = shortDesc,
+                    detailedDescription = detailedDesc,
+                    timestamp = System.currentTimeMillis(),
+                    isAnonymous = true
+                )
+                mapViewModel.savePin(newPin)
+                mapViewModel.dismissDialog()
+            }
+        )
     }
 
 }

@@ -34,6 +34,14 @@ class MapViewModel(
     private val _safetyPins = mutableStateOf<List<SafetyPin>>(emptyList())
     val safetyPins: State<List<SafetyPin>> = _safetyPins
 
+    // state to show or hide dialog
+    private val _showDialog = mutableStateOf(false)
+    val showDialog: State<Boolean> = _showDialog
+
+    // tapped location to save
+    private val _tappedLocation = mutableStateOf<LatLng?>(null)
+    val tappedLocation: State<LatLng?> = _tappedLocation
+
     // to fetch user's location
     public fun fetchUserLocation() {
         viewModelScope.launch {
@@ -59,6 +67,16 @@ class MapViewModel(
                 }
 
         }
+    }
+
+
+    fun onMapTapped(location: LatLng) {
+        _tappedLocation.value = location
+        _showDialog.value = true
+    }
+
+    fun dismissDialog() {
+        _showDialog.value = false
     }
 
     // save a pin to the database
