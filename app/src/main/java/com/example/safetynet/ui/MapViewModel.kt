@@ -38,9 +38,13 @@ class MapViewModel(
     private val _showDialog = mutableStateOf(false)
     val showDialog: State<Boolean> = _showDialog
 
-    // tapped location to save
+    // state for tapped location to save
     private val _tappedLocation = mutableStateOf<LatLng?>(null)
     val tappedLocation: State<LatLng?> = _tappedLocation
+
+    // state for error in duplication
+    private val _errorMessage = mutableStateOf<String?>(null)
+    val errorMessage: State<String?> = _errorMessage
 
     // to fetch user's location
     public fun fetchUserLocation() {
@@ -84,12 +88,18 @@ class MapViewModel(
         viewModelScope.launch {
             savePinUseCase(safetyPin)
                 .onSuccess {
+                    dismissDialog()
                     loadAllPins()
                 }
                 .onFailure { exception ->
+                    _errorMessage.value = exception.message ?: "Failed to save pin"
                     Timber.e(exception, "Failed to save pin")
                 }
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 
 }

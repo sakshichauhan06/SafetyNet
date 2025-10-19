@@ -1,10 +1,16 @@
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +41,10 @@ fun MapScreen(mapViewModel: MapViewModel) {
     val showDialog by mapViewModel.showDialog
     val tappedLocation by mapViewModel.tappedLocation
 
+    val errorMessage by mapViewModel.errorMessage
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -60,42 +70,56 @@ fun MapScreen(mapViewModel: MapViewModel) {
         }
     }
 
-    // load pins when screen loads
+    // Load pins when screen loads
     LaunchedEffect(Unit) {
         mapViewModel.loadAllPins()
     }
 
-    GoogleMap(
-        modifier = Modifier
-            .fillMaxSize(),
-        cameraPositionState = cameraPositionState,
-        onMapClick = { latLng ->
-            mapViewModel.onMapTapped(latLng)
+    // Show error snackbar when error occurs
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            mapViewModel.clearError()
         }
-    ) {
-        // user location marker
-        userLocation?.let { location ->
-            Marker(
-                state = MarkerState(position = location),
-                title = "Your Location"
-            )
-            LaunchedEffect(location) {
-                cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(
-                        location, 15f
-                    )
-                )
-            }
-        }
+    }
 
-        // display all saved pins inside GoogleMap Block
-        safetyPins.forEach { pin ->
-            Marker(
-                state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
-                title = pin.shortDescription,
-                snippet = "Severity: ${pin.severity}",
-                icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity))
-            )
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                onMapClick = { latLng ->
+                    mapViewModel.onMapTapped(latLng)
+                }
+            ) {
+                // user location marker
+                userLocation?.let { location ->
+                    Marker(
+                        state = MarkerState(position = location),
+                        title = "Your Location"
+                    )
+                    LaunchedEffect(location) {
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newLatLngZoom(
+                                location, 15f
+                            )
+                        )
+                    }
+                }
+
+                // display all saved pins inside GoogleMap Block
+                safetyPins.forEach { pin ->
+                    Marker(
+                        state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
+                        title = pin.shortDescription,
+                        snippet = "Severity: ${pin.severity}",
+                        icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity))
+                    )
+                }
+            }
         }
     }
 
