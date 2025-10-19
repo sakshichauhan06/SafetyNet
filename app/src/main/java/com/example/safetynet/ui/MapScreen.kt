@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.components.PinDetailsDialog
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
@@ -92,7 +93,8 @@ fun MapScreen(mapViewModel: MapViewModel) {
             Marker(
                 state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
                 title = pin.shortDescription,
-                snippet = "Severity: ${pin.severity}"
+                snippet = "Severity: ${pin.severity}",
+                icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity))
             )
         }
     }
@@ -116,6 +118,15 @@ fun MapScreen(mapViewModel: MapViewModel) {
         )
     }
 
+}
+
+fun getMarkerColor(severity: SeverityLevel): Float {
+    return when(severity) {
+        SeverityLevel.RED -> BitmapDescriptorFactory.HUE_RED
+        SeverityLevel.ORANGE -> BitmapDescriptorFactory.HUE_ORANGE
+        SeverityLevel.YELLOW -> BitmapDescriptorFactory.HUE_YELLOW
+        SeverityLevel.GREEN -> BitmapDescriptorFactory.HUE_GREEN
+    }
 }
 
 //@Preview
