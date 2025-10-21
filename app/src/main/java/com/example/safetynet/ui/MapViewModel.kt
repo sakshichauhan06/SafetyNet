@@ -52,6 +52,8 @@ class MapViewModel(
             locationRepository.getCurrentLocation()
                 .onSuccess { latLng ->
                     _userLocation.value = latLng
+                    // since we got the user location now, we can load the nearby pins
+                    loadAllPins()
                 }
                 .onFailure { exception ->
                     Timber.e(exception, "Failed to fetch user location")
@@ -62,7 +64,7 @@ class MapViewModel(
     // to load all pins from our database
     fun loadAllPins() {
         viewModelScope.launch {
-            getAllPinsUseCase()
+            getAllPinsUseCase(userLocation.value)
                 .onSuccess { pins ->
                     _safetyPins.value = pins
                 }

@@ -70,13 +70,16 @@ fun MapScreen(mapViewModel: MapViewModel) {
         }
     }
 
-    // Load pins when screen loads
-    LaunchedEffect(Unit) {
-        mapViewModel.loadAllPins()
+    // Load pins whenever userLocation changes
+    LaunchedEffect(userLocation) {
+        if (userLocation != null) {
+            mapViewModel.loadAllPins()
+        }
     }
 
     // Show error snackbar when error occurs
     LaunchedEffect(errorMessage) {
+
         errorMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
             mapViewModel.clearError()
