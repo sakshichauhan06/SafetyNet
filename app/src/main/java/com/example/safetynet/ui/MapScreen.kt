@@ -27,6 +27,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import data.SafetyPin
 import domain.SeverityLevel
 import timber.log.Timber
+import utils.AppConstants
 
 
 @Composable
@@ -107,7 +108,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     LaunchedEffect(location) {
                         cameraPositionState.animate(
                             CameraUpdateFactory.newLatLngZoom(
-                                location, 15f
+                                location, AppConstants.DEFAULT_MAP_ZOOM
                             )
                         )
                     }

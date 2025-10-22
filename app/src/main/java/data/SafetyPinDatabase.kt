@@ -7,9 +7,10 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import domain.SeverityLevel
+import utils.AppConstants
 
 
-@Database(entities = [SafetyPin::class], version = 2)
+@Database(entities = [SafetyPin::class], version = AppConstants.DATABASE_VERSION)
 @TypeConverters(Converters::class)
 abstract class SafetyPinDatabase : RoomDatabase() {
 
@@ -24,7 +25,7 @@ abstract class SafetyPinDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     SafetyPinDatabase::class.java,
-                    "safety_pin_database"
+                    AppConstants.DATABASE_NAME
                 )
                     .fallbackToDestructiveMigration()
                     .build()

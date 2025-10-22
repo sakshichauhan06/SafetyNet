@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import data.SafetyPin
 import data.SafetyPinRepository
 import domain.SeverityLevel
+import utils.AppConstants
 import utils.LocationUtils
 
 /**
@@ -17,10 +18,6 @@ import utils.LocationUtils
  */
 
 class GetAllPinsUseCase(private val repository: SafetyPinRepository) {
-
-    companion object {
-        private const val MAX_RADIUS_METERS = 5000.0
-    }
 
     suspend operator fun invoke(userLocation: LatLng?): Result<List<SafetyPin>> {
         // radius filtering and sorting
@@ -41,7 +38,7 @@ class GetAllPinsUseCase(private val repository: SafetyPinRepository) {
                 LatLng(userLocation.latitude, userLocation.longitude)
             )
 
-            distance <= MAX_RADIUS_METERS
+            distance <= AppConstants.MAX_PIN_DISPLAY_RADIUS_METERS
         }
 
         // 4. sort by severity (red -> orange -> yellow -> green)
