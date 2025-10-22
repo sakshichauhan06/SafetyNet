@@ -1,5 +1,12 @@
 package domain
 
+/**
+ *
+ * Enum class where the severity of a pin is defined
+ * based on the score and colorHex
+ *
+ */
+
 enum class SeverityLevel(
     val displayName: String,
     val score: Int,

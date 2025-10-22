@@ -6,6 +6,16 @@ import data.SafetyPinRepository
 import domain.SeverityLevel
 import utils.LocationUtils
 
+/**
+ * Retrieves all safety pins within a 5km radius of the user's location.
+ *
+ * Filters pins by distance to show only relevant nearby incidents.
+ * Results are sorted by severity (most dangerous first) and then by distance (closest first).
+ *
+ * @param userLocation The user's current location, or null to return all pins unfiltered
+ * @return Result.success with filtered and sorted list of pins, or Result.failure if query fails
+ */
+
 class GetAllPinsUseCase(private val repository: SafetyPinRepository) {
 
     companion object {

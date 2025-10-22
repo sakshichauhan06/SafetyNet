@@ -6,10 +6,12 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-object LocationUtils {
+/**
+ * Calculates the distance between two points/pins using Haversine formula
+ * Returns the distance in meters
+ */
 
-    // Calculate the distance between two points/pins using Haversine formula
-    // Returns the distance in meters
+object LocationUtils {
 
     fun calculateDistance(point1: LatLng, point2: LatLng): Double {
         val earthRadiusKm = 6371.0

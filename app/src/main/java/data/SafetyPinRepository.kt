@@ -1,5 +1,12 @@
 package data
 
+
+/**
+ * Inserts a new safety pin into the local database.
+ *
+ * @param safetyPin The pin to insert
+ * @return Result.success if inserted, Result.failure if database error occurs
+ */
 class SafetyPinRepository(private val safetyPinDao: SafetyPinDao) {
 
     suspend fun insertPin(safetyPin: SafetyPin): Result<Unit> {
@@ -11,6 +18,11 @@ class SafetyPinRepository(private val safetyPinDao: SafetyPinDao) {
         }
     }
 
+    /**
+     * Retrieves all safety pins from the local database.
+     *
+     * @return Result.success with list of all pins, or empty list if none exist
+     */
     suspend fun getAllPins(): Result<List<SafetyPin>> {
         return try {
             val pins = safetyPinDao.getAllPins()

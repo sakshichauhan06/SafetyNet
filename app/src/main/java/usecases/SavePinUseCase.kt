@@ -5,6 +5,17 @@ import data.SafetyPin
 import data.SafetyPinRepository
 import utils.LocationUtils
 
+/**
+ * Saves a safety pin to the database after validating no duplicates exist nearby.
+ *
+ * Prevents users from creating multiple pins at the same location by checking
+ * if any existing pin is within 50 meters of the new pin's location.
+ * This helps maintain data quality and prevents spam.
+ *
+ * @param safetyPin The safety pin to be saved with location, severity, and descriptions
+ * @return Result.success(Unit) if saved successfully, Result.failure if duplicate found or save failed
+ */
+
 class SavePinUseCase(private val repository: SafetyPinRepository) {
 
     companion object {

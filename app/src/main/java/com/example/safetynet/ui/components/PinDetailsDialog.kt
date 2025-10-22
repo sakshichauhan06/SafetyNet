@@ -1,5 +1,6 @@
 package com.example.safetynet.ui.components
 
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -18,6 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.safetynet.ui.theme.SafetyNetTheme
 import domain.SeverityLevel
+
+/**
+ * Dialog to report a location.
+ *
+ * When a user clicks on a location, it will show a dialog
+ * which will give the user to enter the following things:
+ * Short Description, Detailed Description, Severity Level (red, orange, yellow, green)
+ * Then 2 options: to Cancel or to Save it
+ *
+ */
 @Composable
 fun PinDetailsDialog(
     onDismiss: () -> Unit,

@@ -19,6 +19,23 @@ import timber.log.Timber
 import usecases.GetAllPinsUseCase
 import usecases.SavePinUseCase
 
+/**
+ * ViewModel for the MapScreen
+ *
+ * It holds and updates the following states:
+ * 1. userLocation: LatLng? (user's location)
+ * 2. safetyPins: List<SafetyPin> (state for all saved pins)
+ * 3. showDialog: Boolean
+ * 4. tappedLocation: LatLng?
+ * 5. errorMessage: String?
+ *
+ *
+ * @param locationRepository to fetch the user's location
+ * @param savePinUseCase to save a pin to the database
+ * @param getAllPinsUseCase to load all pins from the database
+ *
+ */
+
 class MapViewModel(
     private val locationRepository: LocationRepository,
     private val savePinUseCase: SavePinUseCase,
@@ -46,7 +63,11 @@ class MapViewModel(
     private val _errorMessage = mutableStateOf<String?>(null)
     val errorMessage: State<String?> = _errorMessage
 
-    // to fetch user's location
+    /**
+     * Fetches the user's current location and loads nearby safety pins.
+     *
+     * Automatically triggers pin loading once location is obtained.
+     */
     public fun fetchUserLocation() {
         viewModelScope.launch {
             locationRepository.getCurrentLocation()
@@ -85,7 +106,14 @@ class MapViewModel(
         _showDialog.value = false
     }
 
-    // save a pin to the database
+    /**
+     * Saves a new safety pin to the database.
+     *
+     * Validates for duplicates, shows error if pin exists within 50m,
+     * otherwise saves and reloads the pin list.
+     *
+     * @param safetyPin The pin to save
+     */
     fun savePin(safetyPin: SafetyPin) {
         viewModelScope.launch {
             savePinUseCase(safetyPin)

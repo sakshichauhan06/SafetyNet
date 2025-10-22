@@ -5,6 +5,15 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
+/**
+ * Fetches the device's last known location from Android's location service.
+ *
+ * Uses FusedLocationProviderClient to retrieve GPS coordinates.
+ * Assumes location permission has already been granted by the UI layer.
+ *
+ * @return Result.success with LatLng if location found, Result.failure if unavailable or error occurs
+ */
+
 class LocationRepository(private val fusedLocationClient: FusedLocationProviderClient) {
     suspend fun getCurrentLocation() : Result<LatLng> {
         return suspendCancellableCoroutine { continuation ->
