@@ -1,20 +1,39 @@
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.example.safetynet.R
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.components.PinDetailsDialog
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -46,13 +65,17 @@ fun MapScreen(mapViewModel: MapViewModel) {
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    var permissionDenied by remember { mutableStateOf(false) }
+
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if(isGranted) {
             mapViewModel.fetchUserLocation()
+            permissionDenied = false
         } else {
+            permissionDenied = true
             Timber.e("Location permission denied")
         }
     }
@@ -87,46 +110,6 @@ fun MapScreen(mapViewModel: MapViewModel) {
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            GoogleMap(
-                modifier = Modifier
-                    .fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-                onMapClick = { latLng ->
-                    mapViewModel.onMapTapped(latLng)
-                }
-            ) {
-                // user location marker
-                userLocation?.let { location ->
-                    Marker(
-                        state = MarkerState(position = location),
-                        title = "Your Location"
-                    )
-                    LaunchedEffect(location) {
-                        cameraPositionState.animate(
-                            CameraUpdateFactory.newLatLngZoom(
-                                location, AppConstants.DEFAULT_MAP_ZOOM
-                            )
-                        )
-                    }
-                }
-
-                // display all saved pins inside GoogleMap Block
-                safetyPins.forEach { pin ->
-                    Marker(
-                        state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
-                        title = pin.shortDescription,
-                        snippet = "Severity: ${pin.severity}",
-                        icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity))
-                    )
-                }
-            }
-        }
-    }
-
     if (showDialog && tappedLocation != null) {
         PinDetailsDialog(
             onDismiss = { mapViewModel.dismissDialog() },
@@ -146,6 +129,59 @@ fun MapScreen(mapViewModel: MapViewModel) {
         )
     }
 
+    if (permissionDenied) {
+       // show permission required screen
+        PermissionRequiredScreen(
+            onSettingsClick = {
+                // open settings app
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
+            }
+        )
+    } else {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                GoogleMap(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    cameraPositionState = cameraPositionState,
+                    onMapClick = { latLng ->
+                        mapViewModel.onMapTapped(latLng)
+                    }
+                ) {
+                    // user location marker
+                    userLocation?.let { location ->
+                        Marker(
+                            state = MarkerState(position = location),
+                            title = "Your Location"
+                        )
+                        LaunchedEffect(location) {
+                            cameraPositionState.animate(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    location, AppConstants.DEFAULT_MAP_ZOOM
+                                )
+                            )
+                        }
+                    }
+
+                    // display all saved pins inside GoogleMap Block
+                    safetyPins.forEach { pin ->
+                        Marker(
+                            state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
+                            title = pin.shortDescription,
+                            snippet = "Severity: ${pin.severity}",
+                            icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity))
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 fun getMarkerColor(severity: SeverityLevel): Float {
@@ -154,6 +190,46 @@ fun getMarkerColor(severity: SeverityLevel): Float {
         SeverityLevel.ORANGE -> BitmapDescriptorFactory.HUE_ORANGE
         SeverityLevel.YELLOW -> BitmapDescriptorFactory.HUE_YELLOW
         SeverityLevel.GREEN -> BitmapDescriptorFactory.HUE_GREEN
+    }
+}
+
+@Composable
+fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.home_pin_24px),
+            contentDescription = "Location Required",
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Location Permission Required",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "This app requires location access to show nearby safety incidents and help keep you safe.",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(onClick = onSettingsClick) {
+            Text(text = "Open Settings")
+        }
     }
 }
 
