@@ -74,10 +74,13 @@ fun PinDetailsDialog(
             }
         },
         confirmButton = {
-            Button(onClick = {
-                val severity = SeverityLevel.entries[selectedSeverityIndex]
-                onSave(shortDescription, detailedDescription, severity)
-            }) {
+            Button(
+                onClick = {
+                    val severity = SeverityLevel.entries[selectedSeverityIndex]
+                    onSave(shortDescription, detailedDescription, severity)
+                },
+                enabled = shortDescription.isNotBlank()
+            ) {
                 Text("Save")
             }
         },
