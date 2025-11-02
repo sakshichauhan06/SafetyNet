@@ -63,6 +63,8 @@ class MapViewModel(
     private val _errorMessage = mutableStateOf<String?>(null)
     val errorMessage: State<String?> = _errorMessage
 
+    // 
+
     /**
      * Fetches the user's current location and loads nearby safety pins.
      *
