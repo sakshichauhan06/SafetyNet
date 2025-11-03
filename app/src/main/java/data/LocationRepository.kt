@@ -14,7 +14,10 @@ import kotlin.coroutines.resume
  * @return Result.success with LatLng if location found, Result.failure if unavailable or error occurs
  */
 
-class LocationRepository(private val fusedLocationClient: FusedLocationProviderClient) {
+class LocationRepository(
+    private val safetyPinDao: SafetyPinDao,
+    private val fusedLocationClient: FusedLocationProviderClient
+) {
     suspend fun getCurrentLocation() : Result<LatLng> {
         return suspendCancellableCoroutine { continuation ->
             try {
@@ -33,4 +36,10 @@ class LocationRepository(private val fusedLocationClient: FusedLocationProviderC
             }
         }
     }
+
+    // Deletes a specific SafetyPin from the DB
+    suspend fun deletePin(pin: SafetyPin) {
+        safetyPinDao.delete(pin)
+    }
+
 }

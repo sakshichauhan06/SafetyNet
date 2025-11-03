@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,6 +42,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.safetynet.R
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.components.PinDetailsDialog
+import com.example.safetynet.ui.components.ViewPinDetailsDialog
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -60,17 +62,22 @@ fun MapScreen(mapViewModel: MapViewModel) {
     val userLocation by mapViewModel.userLocation
     val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState()
+    val isLoading by mapViewModel.isLoading
 
     val safetyPins by mapViewModel.safetyPins
 
     val showDialog by mapViewModel.showDialog
     val tappedLocation by mapViewModel.tappedLocation
 
+    val selectedPin by mapViewModel.selectedPin
+
     val errorMessage by mapViewModel.errorMessage
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     var permissionDenied by remember { mutableStateOf(false) }
+
+    val showEmptyState = !isLoading && safetyPins.isEmpty()
 
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -159,6 +166,32 @@ fun MapScreen(mapViewModel: MapViewModel) {
         )
     }
 
+    if(selectedPin != null) {
+        ViewPinDetailsDialog(
+            pin = selectedPin!!,
+            onDismiss = { mapViewModel.onPinDetailsDialogDismiss() },
+            onDelete = {
+                mapViewModel.deletePin(pin = selectedPin!!)
+            }
+        )
+    } else if (showDialog && tappedLocation != null) {
+        PinDetailsDialog(
+            onDismiss = { mapViewModel.dismissDialog() },
+            onSave = { shortDesc, detailedDesc, severity ->
+                val newPin = SafetyPin(
+                    latitude = tappedLocation!!.latitude,
+                    longitude = tappedLocation!!.longitude,
+                    severity = severity,
+                    shortDescription = shortDesc,
+                    detailedDescription = detailedDesc,
+                    timestamp = System.currentTimeMillis(),
+                    isAnonymous = true
+                )
+                mapViewModel.savePin(newPin)
+            }
+        )
+    }
+
     if (permissionDenied) {
        // show permission required screen
         PermissionRequiredScreen(
@@ -204,7 +237,29 @@ fun MapScreen(mapViewModel: MapViewModel) {
                             state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
                             title = pin.shortDescription,
                             snippet = "Severity: ${pin.severity}",
-                            icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity))
+                            icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity)),
+                            onClick = {
+                                mapViewModel.onPinSelected(pin)
+                                true
+                            }
+                        )
+                    }
+                }
+
+//                if (showEmptyState) {
+//                    EmptySafetyPinState()
+//                }
+
+                if(isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                            .align(Alignment.Center)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .align(Alignment.Center),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -262,6 +317,8 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
         }
     }
 }
+
+
 
 //@Preview
 //@Composable

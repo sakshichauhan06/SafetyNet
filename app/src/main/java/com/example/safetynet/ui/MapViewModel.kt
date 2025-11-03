@@ -16,6 +16,7 @@ import data.LocationRepository
 import data.SafetyPin
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import usecases.DeletePinUseCase
 import usecases.GetAllPinsUseCase
 import usecases.SavePinUseCase
 
@@ -39,7 +40,8 @@ import usecases.SavePinUseCase
 class MapViewModel(
     private val locationRepository: LocationRepository,
     private val savePinUseCase: SavePinUseCase,
-    private val getAllPinsUseCase: GetAllPinsUseCase
+    private val getAllPinsUseCase: GetAllPinsUseCase,
+    private val deletePinUseCase: DeletePinUseCase
 ): ViewModel() {
 
     // state to hold the user's location as LatLng
@@ -63,7 +65,13 @@ class MapViewModel(
     private val _errorMessage = mutableStateOf<String?>(null)
     val errorMessage: State<String?> = _errorMessage
 
-    // 
+    // state for selected pin to show it's details
+    private val _selectedPin = mutableStateOf<SafetyPin?>(null)
+    val selectedPin: State<SafetyPin?> = _selectedPin
+
+    // state for loading indicator
+    private val _isLoading = mutableStateOf(false)
+    val isLoading: State<Boolean> = _isLoading
 
     /**
      * Fetches the user's current location and loads nearby safety pins.
@@ -87,12 +95,19 @@ class MapViewModel(
     // to load all pins from our database
     fun loadAllPins() {
         viewModelScope.launch {
+            // if we are already loading
+            if(!_isLoading.value) {
+                _isLoading.value = true
+            }
+
             getAllPinsUseCase(userLocation.value)
                 .onSuccess { pins ->
                     _safetyPins.value = pins
+                    _isLoading.value = false // END loading on success
                 }
                 .onFailure { exception ->
                     Timber.e(exception, "Failed to load pins")
+                    _isLoading.value = false // END loading on failure
                 }
 
         }
@@ -108,6 +123,33 @@ class MapViewModel(
         _showDialog.value = false
     }
 
+    fun onPinSelected(pin: SafetyPin) {
+        _selectedPin.value = pin
+    }
+
+    fun onPinDetailsDialogDismiss() {
+        _selectedPin.value = null
+    }
+
+    // Deletes specific selected SafetyPin & reloads the pins list
+    fun deletePin(pin: SafetyPin) {
+        _isLoading.value = true // START loading for delete operation
+        viewModelScope.launch {
+            deletePinUseCase(pin)
+                .onSuccess {
+                    // pin deleted successfully
+                    onPinDetailsDialogDismiss()
+                    loadAllPins()
+                }
+                .onFailure { exception ->
+                    _errorMessage.value = "Failed to delete pin: ${exception.message}"
+                    Timber.e(exception, "Failed to delete pin")
+                    _isLoading.value = false // END loading on failure
+                }
+        }
+    }
+
+
     /**
      * Saves a new safety pin to the database.
      *
@@ -118,6 +160,7 @@ class MapViewModel(
      */
     fun savePin(safetyPin: SafetyPin) {
         viewModelScope.launch {
+            _isLoading.value = true // START loading for save operation
             savePinUseCase(safetyPin)
                 .onSuccess {
                     dismissDialog()
@@ -126,6 +169,7 @@ class MapViewModel(
                 .onFailure { exception ->
                     _errorMessage.value = exception.message ?: "Failed to save pin"
                     Timber.e(exception, "Failed to save pin")
+                    _isLoading.value = false // END loading on failure
                 }
         }
     }

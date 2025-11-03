@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.LatLng
 import data.LocationRepository
 import data.SafetyPinDatabase
 import data.SafetyPinRepository
+import usecases.DeletePinUseCase
 import usecases.GetAllPinsUseCase
 import usecases.SavePinUseCase
 import utils.LocationUtils
@@ -28,21 +29,35 @@ class MainActivity : ComponentActivity() {
             SafetyNetTheme {
                 val context = LocalContext.current
 
+                // database and pin dependencies
+                val database = remember { SafetyPinDatabase.getDatabase(context) }
+                val safetyPinDao = remember { database.safetyPinDao() }
+                val safetyPinRepository = remember { SafetyPinRepository(database.safetyPinDao()) }
+
+
                 // location dependencies
                 val fusedLocationClient = remember {
                     LocationServices.getFusedLocationProviderClient(context)
                 }
-                val locationRepository = remember { LocationRepository(fusedLocationClient) }
+                val locationRepository = remember {
+                    LocationRepository(
+                        safetyPinDao,
+                        fusedLocationClient
+                    )
+                }
 
-                // database and pin dependencies
-                val database = remember { SafetyPinDatabase.getDatabase(context) }
-                val safetyPinRepository = remember { SafetyPinRepository(database.safetyPinDao()) }
+                // use cases
                 val savePinUseCase = remember { SavePinUseCase(safetyPinRepository) }
                 val getAllPinsUseCase = remember { GetAllPinsUseCase(safetyPinRepository) }
-
+                val deletePinUseCase = remember { DeletePinUseCase(safetyPinRepository) }
 
                 val mapViewModel = remember {
-                    MapViewModel(locationRepository, savePinUseCase, getAllPinsUseCase)
+                    MapViewModel(
+                        locationRepository,
+                        savePinUseCase,
+                        getAllPinsUseCase,
+                        deletePinUseCase
+                    )
                 }
 
                 MapScreen(mapViewModel)
