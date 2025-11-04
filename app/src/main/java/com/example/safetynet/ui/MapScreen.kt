@@ -246,9 +246,9 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     }
                 }
 
-//                if (showEmptyState) {
-//                    EmptySafetyPinState()
-//                }
+                if (showEmptyState) {
+                    EmptySafetyPinState()
+                }
 
                 if(isLoading) {
                     Box(
