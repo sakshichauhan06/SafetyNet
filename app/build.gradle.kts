@@ -84,6 +84,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // For Icons.Filled, Icons.Outlined, etc.
+    implementation("androidx.compose.material:material-icons-extended")
+
 
     implementation("androidx.customview:customview-poolingcontainer:1.1.0")
 }

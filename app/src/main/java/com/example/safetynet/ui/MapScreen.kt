@@ -41,6 +41,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.safetynet.R
 import com.example.safetynet.ui.MapViewModel
+import com.example.safetynet.ui.components.EmptySafetyPinState
 import com.example.safetynet.ui.components.PinDetailsDialog
 import com.example.safetynet.ui.components.ViewPinDetailsDialog
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -246,9 +247,9 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     }
                 }
 
-//                if (showEmptyState) {
-//                    EmptySafetyPinState()
-//                }
+                if (showEmptyState) {
+                    EmptySafetyPinState()
+                }
 
                 if(isLoading) {
                     Box(
