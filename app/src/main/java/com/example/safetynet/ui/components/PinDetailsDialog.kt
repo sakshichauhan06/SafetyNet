@@ -2,8 +2,11 @@ package com.example.safetynet.ui.components
 
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -17,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.safetynet.ui.theme.SafetyNetTheme
 import domain.SeverityLevel
 
@@ -45,7 +49,9 @@ fun PinDetailsDialog(
         onDismissRequest = onDismiss,
         title = { Text("Report Location") },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.padding(vertical = 2.dp)
+            ) {
                 OutlinedTextField(
                     value = shortDescription,
                     onValueChange = { shortDescription = it },
@@ -58,6 +64,8 @@ fun PinDetailsDialog(
                 )
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth()
                 ) {
                     SeverityLevel.entries.forEachIndexed { index, level ->
                         SegmentedButton(
@@ -67,7 +75,10 @@ fun PinDetailsDialog(
                             ),
                             onClick = { selectedSeverityIndex = index },
                             selected = index == selectedSeverityIndex,
-                            label = { Text(level.displayName) }
+                            label = { Text(
+                                text = level.displayName,
+                                style = MaterialTheme.typography.bodySmall
+                            ) }
                         )
                     }
                 }
