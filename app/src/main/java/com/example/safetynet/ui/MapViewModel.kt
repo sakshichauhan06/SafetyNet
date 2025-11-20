@@ -80,13 +80,16 @@ class MapViewModel(
      */
     public fun fetchUserLocation() {
         viewModelScope.launch {
+            _isLoading.value = true
             locationRepository.getCurrentLocation()
                 .onSuccess { latLng ->
                     _userLocation.value = latLng
                     // since we got the user location now, we can load the nearby pins
                     loadAllPins()
+                    _isLoading.value = false
                 }
                 .onFailure { exception ->
+                    _isLoading.value = false
                     Timber.e(exception, "Failed to fetch user location")
                 }
         }
@@ -133,9 +136,8 @@ class MapViewModel(
 
     // Deletes specific selected SafetyPin & reloads the pins list
     fun deletePin(pin: SafetyPin) {
-        _isLoading.value = true // START loading for delete operation
         viewModelScope.launch {
-            deletePinUseCase(pin)
+            deletePinUseCase(pin.id)
                 .onSuccess {
                     // pin deleted successfully
                     onPinDetailsDialogDismiss()
@@ -144,7 +146,6 @@ class MapViewModel(
                 .onFailure { exception ->
                     _errorMessage.value = "Failed to delete pin: ${exception.message}"
                     Timber.e(exception, "Failed to delete pin")
-                    _isLoading.value = false // END loading on failure
                 }
         }
     }

@@ -16,4 +16,8 @@ interface SafetyPinDao {
 
     @Delete
     suspend fun delete(safetyPin: SafetyPin)
+
+    @Query("DELETE FROM SafetyPin WHERE id = :pinId")
+    suspend fun deleteById(pinId: Long)
+
 }

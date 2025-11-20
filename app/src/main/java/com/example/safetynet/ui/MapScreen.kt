@@ -171,7 +171,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
             pin = selectedPin!!,
             onDismiss = { mapViewModel.onPinDetailsDialogDismiss() },
             onDelete = {
-                mapViewModel.deletePin(pin = selectedPin!!)
+                mapViewModel.deletePin(selectedPin!!)
             }
         )
     } else if (showDialog && tappedLocation != null) {
@@ -246,9 +246,9 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     }
                 }
 
-                if (showEmptyState) {
-                    EmptySafetyPinState()
-                }
+//                if (showEmptyState) {
+//                    EmptySafetyPinState()
+//                }
 
                 if(isLoading) {
                     Box(

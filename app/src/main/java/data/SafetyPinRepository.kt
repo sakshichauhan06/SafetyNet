@@ -32,9 +32,12 @@ class SafetyPinRepository(private val safetyPinDao: SafetyPinDao) {
         }
     }
 
-    suspend fun deletePin(safetyPin: SafetyPin): Result<Unit> {
+    /**
+     * Deletes a specific safety pin by ID from the local database.
+     */
+    suspend fun deletePin(pinId: Long): Result<Unit> {
         return try {
-            safetyPinDao.delete(safetyPin)
+            safetyPinDao.deleteById(pinId)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
