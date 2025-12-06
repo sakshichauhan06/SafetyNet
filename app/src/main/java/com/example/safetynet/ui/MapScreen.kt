@@ -1,3 +1,4 @@
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -41,8 +42,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.safetynet.R
 import com.example.safetynet.ui.MapViewModel
+import com.example.safetynet.ui.ReportIncidentDialog
 import com.example.safetynet.ui.components.EmptySafetyPinState
-import com.example.safetynet.ui.components.PinDetailsDialog
 import com.example.safetynet.ui.components.ViewPinDetailsDialog
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -98,11 +99,11 @@ fun MapScreen(mapViewModel: MapViewModel) {
         when {
             ContextCompat.checkSelfPermission(
                 context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED -> {
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
                 mapViewModel.fetchUserLocation()
             } else -> {
-            permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
     }
@@ -116,7 +117,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
                 // re-check permission when user return to app
                 val hasPermission = ContextCompat.checkSelfPermission(
                     context,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                    Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
 
                 if (hasPermission && permissionDenied) {
@@ -141,50 +142,35 @@ fun MapScreen(mapViewModel: MapViewModel) {
 
     // Show error snackbar when error occurs
     LaunchedEffect(errorMessage) {
-
         errorMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
             mapViewModel.clearError()
         }
     }
 
-    if (showDialog && tappedLocation != null) {
-        PinDetailsDialog(
-            onDismiss = { mapViewModel.dismissDialog() },
-            onSave = { shortDesc, detailedDesc, severity ->
-                val newPin = SafetyPin(
-                    latitude = tappedLocation!!.latitude,
-                    longitude = tappedLocation!!.longitude,
-                    severity = severity,
-                    shortDescription = shortDesc,
-                    detailedDescription = detailedDesc,
-                    timestamp = System.currentTimeMillis(),
-                    isAnonymous = true
-                )
-                mapViewModel.savePin(newPin)
-                mapViewModel.dismissDialog()
+    // Show view pin details dialog
+    selectedPin?.let { pin ->
+        ViewPinDetailsDialog(
+            pin = pin,
+            onDismiss = { mapViewModel.onPinDetailsDialogDismiss() },
+            onDelete = {
+                mapViewModel.deletePin(pin)
             }
         )
     }
 
-    if(selectedPin != null) {
-        ViewPinDetailsDialog(
-            pin = selectedPin!!,
-            onDismiss = { mapViewModel.onPinDetailsDialogDismiss() },
-            onDelete = {
-                mapViewModel.deletePin(selectedPin!!)
-            }
-        )
-    } else if (showDialog && tappedLocation != null) {
-        PinDetailsDialog(
+    // Show report incident dialog
+    if (showDialog && tappedLocation != null) {
+        ReportIncidentDialog(
             onDismiss = { mapViewModel.dismissDialog() },
-            onSave = { shortDesc, detailedDesc, severity ->
+            onSubmit = { incidentType, details ->
                 val newPin = SafetyPin(
                     latitude = tappedLocation!!.latitude,
                     longitude = tappedLocation!!.longitude,
-                    severity = severity,
-                    shortDescription = shortDesc,
-                    detailedDescription = detailedDesc,
+                    incidentType = incidentType,
+                    severity = incidentType.severity,
+                    shortDescription = incidentType.displayName,
+                    detailedDescription = details.ifEmpty { "No Additional details" },
                     timestamp = System.currentTimeMillis(),
                     isAnonymous = true
                 )

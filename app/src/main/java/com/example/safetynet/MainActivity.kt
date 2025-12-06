@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.example.safetynet.ui.MainScreen
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.theme.SafetyNetTheme
 import com.google.android.gms.location.LocationServices
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-                MapScreen(mapViewModel)
+                MainScreen(mapViewModel)
             }
         }
     }

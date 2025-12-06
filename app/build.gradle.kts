@@ -44,6 +44,9 @@ android {
         compose = true
         buildConfig = true
     }
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -56,6 +59,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -86,6 +90,10 @@ dependencies {
 
     // For Icons.Filled, Icons.Outlined, etc.
     implementation("androidx.compose.material:material-icons-extended")
+
+    // NavHost
+//    implementation(libs.androidx.navigation.compose)
+    implementation("androidx.navigation:navigation-compose:2.9.6")
 
 
     implementation("androidx.customview:customview-poolingcontainer:1.1.0")

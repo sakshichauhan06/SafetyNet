@@ -6,11 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import domain.IncidentType
 import domain.SeverityLevel
 import utils.AppConstants
 
 
-@Database(entities = [SafetyPin::class], version = AppConstants.DATABASE_VERSION)
+@Database(entities = [SafetyPin::class], version = AppConstants.DATABASE_VERSION, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class SafetyPinDatabase : RoomDatabase() {
 
@@ -27,7 +28,8 @@ abstract class SafetyPinDatabase : RoomDatabase() {
                     SafetyPinDatabase::class.java,
                     AppConstants.DATABASE_NAME
                 )
-                    .fallbackToDestructiveMigrationOnDowngrade()
+                    .fallbackToDestructiveMigration()
+//                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
                 INSTANCE = instance
                 instance
@@ -45,5 +47,15 @@ class Converters {
     @TypeConverter
     fun toSeverityLevel(value: String): SeverityLevel {
         return SeverityLevel.valueOf(value)
+    }
+
+    @TypeConverter
+    fun fromIncidentType(value: IncidentType): String {
+        return value.name
+    }
+
+    @TypeConverter
+    fun toIncidentType(value: String): IncidentType {
+        return IncidentType.valueOf(value)
     }
 }
