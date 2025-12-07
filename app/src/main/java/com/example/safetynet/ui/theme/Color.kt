@@ -3,7 +3,7 @@ package com.example.safetynet.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Primary Colors
-val ColorPrimary = Color(0xFF0055FF) // Blue Ribbon
+val ColorPrimary = Color(0xFF0151F7) // Blue Ribbon
 val ColorPrimaryVariant = Color(0xFF003D99)
 val ColorOnPrimary = Color.White
 
