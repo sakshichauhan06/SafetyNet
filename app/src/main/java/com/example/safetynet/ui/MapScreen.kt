@@ -1,10 +1,16 @@
 import android.Manifest
+import android.R.attr.onClick
+import android.R.attr.text
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.view.Surface
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,13 +20,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -267,42 +277,74 @@ fun getMarkerColor(severity: SeverityLevel): Float {
 
 @Composable
 fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Icon(
-            painter = painterResource(R.drawable.home_pin_24px),
-            contentDescription = "Location Required",
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.error
-        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Card(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(16.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "Location Permission Required",
+                        style = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center
+                    )
 
-        Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = "Location Permission Required",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "This app requires location access to show nearby safety incidents and help keep you safe.",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(onClick = onSettingsClick) {
-            Text(text = "Open Settings")
+                    Button(onClick = onSettingsClick) {
+                        Text("Open Settings")
+                    }
+                }
+            }
         }
     }
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(32.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        Icon(
+//            painter = painterResource(R.drawable.home_pin_24px),
+//            contentDescription = "Location Required",
+//            modifier = Modifier.size(64.dp),
+//            tint = MaterialTheme.colorScheme.error
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        Text(
+//            text = "Location Permission Required",
+//            style = MaterialTheme.typography.headlineSmall,
+//            textAlign = TextAlign.Center
+//        )
+//
+//        Spacer(modifier = Modifier.height(8.dp))
+//
+//        Text(
+//            text = "This app requires location access to show nearby safety incidents and help keep you safe.",
+//            style = MaterialTheme.typography.bodyMedium,
+//            textAlign = TextAlign.Center
+//        )
+//
+//        Spacer(modifier = Modifier.height(24.dp))
+//
+//        Button(onClick = onSettingsClick) {
+//            Text(text = "Open Settings")
+//        }
+//    }
 }
 
 
