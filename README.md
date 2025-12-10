@@ -4,6 +4,10 @@
 
 ### *Navigate Safely. Report Responsibly. Empower Your Community.*
 
+<p align="center">
+  <img src="media/logo.png" alt="App Logo" width="280" />
+</p>
+
 **A crowd-sourced safety navigation app that helps users travel from A to B while avoiding high-risk areas through real-time incident reporting.**
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-100%25-7F52FF?style=flat&logo=kotlin)](https://kotlinlang.org/)
@@ -24,13 +28,24 @@ Traditional navigation apps show traffic conditions, but what about **safety con
 
 ---
 
-## ✨ Features
+## Screenshots
+
+<p align="center">
+  <img src="media/splash_screen.png" alt="" width="280" />
+  <img src="media/location_permission_req_screen.png" alt="" width="280" />
+  <img src="media/no_incidents_reported_screen.png" alt="" width="280" />
+  <img src="media/report_incident_screen.png" alt="" width="280" />
+</p>
+
+---
+
+## Features
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### 🗺️ **Interactive Safety Map**
+### **Interactive Safety Map**
 - Real-time GPS location tracking
 - Color-coded incident markers
   - 🔴 **High Risk** (Assault, Robbery)
@@ -43,7 +58,7 @@ Traditional navigation apps show traffic conditions, but what about **safety con
 </td>
 <td width="50%" valign="top">
 
-### 📍 **Incident Reporting**
+### **Incident Reporting**
 - Tap-to-report interface
 - Dropdown incident type selection
 - Detailed description fields
@@ -55,7 +70,7 @@ Traditional navigation apps show traffic conditions, but what about **safety con
 <tr>
 <td width="50%" valign="top">
 
-### 🧠 **Smart Detection**
+### **Smart Detection**
 - Duplicate filtering (50m radius)
 - Distance-based sorting
 - Severity + proximity algorithm
@@ -76,7 +91,7 @@ Traditional navigation apps show traffic conditions, but what about **safety con
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 Built with **Clean Architecture** principles for scalability and maintainability:
 ```
@@ -102,7 +117,7 @@ Built with **Clean Architecture** principles for scalability and maintainability
 └─────────────────────────────────────────────────────┘
 ```
 
-### 🛠️ Tech Stack
+### Tech Stack
 
 <div align="center">
 
@@ -121,7 +136,7 @@ Built with **Clean Architecture** principles for scalability and maintainability
 
 ---
 
-## 🔐 Security & Privacy
+## Security & Privacy
 
 - **Location Privacy**: GPS data never leaves device without user consent
 - **Anonymous Reporting**: Optional identity protection
@@ -130,7 +145,7 @@ Built with **Clean Architecture** principles for scalability and maintainability
 
 ---
 
-## 🚀 Roadmap
+## Roadmap
 ```
 Q1 2025
 ├── ✅ Core incident reporting
@@ -227,20 +242,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## Contact
-
-**Your Name** - [@yourtwitter](https://twitter.com/yourtwitter) - your.email@example.com
-
-Project Link: [https://github.com/yourusername/safetynet](https://github.com/yourusername/safetynet)
-
----
-
-<div align="center">
-
 **Built with ❤️ for safer communities**
-
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/safetynet?style=social)](https://github.com/yourusername/safetynet/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/safetynet?style=social)](https://github.com/yourusername/safetynet/network/members)
 [![GitHub issues](https://img.shields.io/github/issues/yourusername/safetynet)](https://github.com/yourusername/safetynet/issues)
 
 ⭐ **Star this repo if you find it useful!** ⭐
