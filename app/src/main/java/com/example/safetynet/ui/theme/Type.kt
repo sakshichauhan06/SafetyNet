@@ -1,90 +1,168 @@
 package com.example.safetynet.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.safetynet.R
 import com.example.safetynet.ui.theme.Typography
 
 // Set of Material typography styles to start with
 
+@OptIn(ExperimentalTextApi::class)
 val HostGrotesk = FontFamily(
     // 1. Regular/Normal Weight
-    Font(R.font.host_grotesk_regular, FontWeight.Normal),
+    Font(
+        R.font.host_grotesk_variable,
+        weight = FontWeight.Normal,
+        variationSettings = FontVariation.Settings(
+            settings = arrayOf(
+                FontVariation.weight(400),
+                FontVariation.width(30f),
+            )
+        )
+    ),
 
     // 2. Light Weight
-    Font(R.font.host_grotesk_light, FontWeight.Light),
+    Font(
+        R.font.host_grotesk_variable,
+        weight = FontWeight.Light,
+        variationSettings = FontVariation.Settings(
+            settings = arrayOf(
+                FontVariation.weight(300),
+                FontVariation.width(30f),
+            )
+        )
+    ),
 
     // 3. Medium Weight
-    Font(R.font.host_grotesk_medium, FontWeight.Medium),
+    Font(
+        R.font.host_grotesk_variable,
+        weight = FontWeight.Medium,
+        variationSettings = FontVariation.Settings(
+            settings = arrayOf(
+                FontVariation.weight(500),
+                FontVariation.width(30f),
+            )
+        )
+    ),
 
+    // 6. Medium Italic
+    Font(
+        R.font.host_grotesk_variable,
+        weight = FontWeight.Medium,
+        variationSettings = FontVariation.Settings(
+            settings = arrayOf(
+                FontVariation.weight(500),
+                FontVariation.width(30f),
+            )
+        )
+    ),
     // 4. Semibold Weight
-    Font(R.font.host_grotesk_semibold, FontWeight.SemiBold),
+    Font(
+        R.font.host_grotesk_variable,
+        weight = FontWeight.SemiBold,
+        variationSettings = FontVariation.Settings(
+            settings = arrayOf(
+                FontVariation.weight(600),
+                FontVariation.width(30f),
+            )
+        )
+    ),
 
     // 5. Bold Weight
-    Font(R.font.host_grotesk_bold, FontWeight.Bold),
-
-    // 6. Medium Italic (Requires FontStyle)
-    Font(R.font.host_grotesk_medium_italic, FontWeight.Medium, style = FontStyle.Italic)
+    Font(
+        R.font.host_grotesk_variable,
+        weight = FontWeight.Bold,
+        variationSettings = FontVariation.Settings(
+            settings = arrayOf(
+                FontVariation.weight(700),
+                FontVariation.width(30f),
+            )
+        )
+    ),
 )
+
 val Typography = Typography(
-    // 1) SPLASH SCREEN HEADING: Bold (128)
     displayLarge = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Bold,
-        fontSize = 128.sp
-    ),
-
-    // 1) SPLASH SCREEN TAGLINE: Medium Italic (48)
-    headlineLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        // Use the actual medium weight now that the FontFamily is correct
-        fontWeight = FontWeight.Medium,
-        fontSize = 48.sp,
-        // Apply the italic style directly to load the italic font file
-        fontStyle = FontStyle.Italic
-    ),
-
-    // 2) DIALOG TITLE: Semibold (48)
-    headlineMedium = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 28.sp
-    ),
-
-    // ✅ DIALOG BODY: Regular (32) - Now the only definition for bodyLarge
-    bodyLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Normal,
-        fontSize = 32.sp
-        // Add default line heights/letter spacing if needed, e.g.,
-        // lineHeight = 40.sp, letterSpacing = 0.sp
-    ),
-
-    // 2) DIALOG BUTTON: Medium (32)
-    labelLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Medium,
-        fontSize = 32.sp
-    ),
-
-    // 2) REPORT DIALOG BUTTON: Semibold (36)
-    titleLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.SemiBold,
         fontSize = 36.sp
     ),
 
-    // 2) DIALOG OPTIONAL TEXT: Light (24)
+    // hero layout, marketing, large headlines
+    headlineLarge = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Medium,
+        fontSize = 24.sp,
+        fontStyle = FontStyle.Italic
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        fontStyle = FontStyle.Italic
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
+    ),
+
+    // content titles
+    titleLarge = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp
+    ),
+
+    // soft verbs, body copy, descriptions
+    bodyLarge = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Light,
+        fontSize = 14.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.ExtraLight,
+        fontSize = 12.sp
+    ),
+
+    // buttons, badges, microcopy
+    labelLarge = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = HostGrotesk,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
+    ),
     labelSmall = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Light,
-        fontSize = 24.sp
+        fontSize = 12.sp
     )
-
-    /* You can now delete the commented-out default text styles */
 )

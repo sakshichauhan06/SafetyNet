@@ -296,7 +296,37 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
                 ) {
                     Text(
                         text = "Location Permission Required",
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.displayLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Location Permission Required",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Location Permission Required",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Location Permission Required",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Location Permission Required",
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Location Permission Required",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Location Permission Required",
+                        style = MaterialTheme.typography.labelSmall,
                         textAlign = TextAlign.Center
                     )
 
