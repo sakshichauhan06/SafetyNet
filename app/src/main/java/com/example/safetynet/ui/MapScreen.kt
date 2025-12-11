@@ -295,37 +295,67 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = "Location Permission Required",
+                        text = "Display Large",
                         style = MaterialTheme.typography.displayLarge,
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "Location Permission Required",
+                        text = "Headline Large",
+                        style = MaterialTheme.typography.headlineLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Headline Medium",
                         style = MaterialTheme.typography.headlineMedium,
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "Location Permission Required",
-                        style = MaterialTheme.typography.headlineMedium,
+                        text = "Headline Small",
+                        style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "Location Permission Required",
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Location Permission Required",
-                        style = MaterialTheme.typography.labelLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Location Permission Required",
+                        text = "Title Large",
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "Location Permission Required",
+                        text = "Title Medium",
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Title Small",
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Body Large",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Body Medium",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Body Small",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Label Large",
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Label Medium",
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Label Small",
                         style = MaterialTheme.typography.labelSmall,
                         textAlign = TextAlign.Center
                     )

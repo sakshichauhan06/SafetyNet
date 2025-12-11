@@ -93,76 +93,74 @@ val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Bold,
-        fontSize = 36.sp
+        fontSize = 42.sp
     ),
 
     // hero layout, marketing, large headlines
     headlineLarge = TextStyle(
         fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Medium,
-        fontSize = 24.sp,
-        fontStyle = FontStyle.Italic
+        fontWeight = FontWeight.Bold,
+        fontSize = 34.sp,
     ),
     headlineMedium = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp,
-        fontStyle = FontStyle.Italic
+        fontSize = 28.sp,
     ),
     headlineSmall = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Medium,
-        fontSize = 16.sp
+        fontSize = 21.sp
     ),
 
     // content titles
     titleLarge = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Bold,
-        fontSize = 16.sp
+        fontSize = 24.sp
     ),
     titleMedium = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp
+        fontSize = 18.sp
     ),
     titleSmall = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
+        fontSize = 14.sp
     ),
 
     // soft verbs, body copy, descriptions
     bodyLarge = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Normal,
-        fontSize = 18.sp
+        fontSize = 21.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Light,
-        fontSize = 14.sp
+        fontSize = 16.sp
     ),
     bodySmall = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.ExtraLight,
-        fontSize = 12.sp
+        fontSize = 14.sp
     ),
 
     // buttons, badges, microcopy
     labelLarge = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Medium,
-        fontSize = 16.sp
+        fontSize = 18.sp
     ),
     labelMedium = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp
+        fontSize = 16.sp
     ),
     labelSmall = TextStyle(
         fontFamily = HostGrotesk,
         fontWeight = FontWeight.Light,
-        fontSize = 12.sp
+        fontSize = 14.sp
     )
 )
