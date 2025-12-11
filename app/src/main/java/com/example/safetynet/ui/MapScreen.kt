@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -31,6 +33,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -277,134 +280,57 @@ fun getMarkerColor(severity: SeverityLevel): Float {
 
 @Composable
 fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE0E0FF))
     ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
+        ElevatedCard (
+            shape = RoundedCornerShape(42.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 6.dp
+            ),
+            modifier = Modifier
+                .background(Color(0xFFE0E0FF))
+                .padding(52.dp)
+                .size(width = 320.dp, height = 340.dp),
         ) {
-            Card(
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .background(Color.White)
-                    .padding(16.dp)
+                    .padding(0.dp)
+                    .fillMaxSize()
+                    .background(Color.Red)
             ) {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                ) {
+                Text(
+                    text = "Location Permission Required",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "This app requires location access to show nearby safety incidents and help keep you safe.",
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Button(onClick = onSettingsClick) {
                     Text(
-                        text = "Display Large",
-                        style = MaterialTheme.typography.displayLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Headline Large",
-                        style = MaterialTheme.typography.headlineLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Headline Medium",
-                        style = MaterialTheme.typography.headlineMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Headline Small",
-                        style = MaterialTheme.typography.headlineSmall,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Title Large",
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Title Medium",
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Title Small",
-                        style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Body Large",
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Body Medium",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Body Small",
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Label Large",
-                        style = MaterialTheme.typography.labelLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Label Medium",
+                        text = "Open Settings",
                         style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center
                     )
-                    Text(
-                        text = "Label Small",
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(onClick = onSettingsClick) {
-                        Text("Open Settings")
-                    }
                 }
             }
         }
     }
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(32.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-//        Icon(
-//            painter = painterResource(R.drawable.home_pin_24px),
-//            contentDescription = "Location Required",
-//            modifier = Modifier.size(64.dp),
-//            tint = MaterialTheme.colorScheme.error
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        Text(
-//            text = "Location Permission Required",
-//            style = MaterialTheme.typography.headlineSmall,
-//            textAlign = TextAlign.Center
-//        )
-//
-//        Spacer(modifier = Modifier.height(8.dp))
-//
-//        Text(
-//            text = "This app requires location access to show nearby safety incidents and help keep you safe.",
-//            style = MaterialTheme.typography.bodyMedium,
-//            textAlign = TextAlign.Center
-//        )
-//
-//        Spacer(modifier = Modifier.height(24.dp))
-//
-//        Button(onClick = onSettingsClick) {
-//            Text(text = "Open Settings")
-//        }
-//    }
 }
 
 
