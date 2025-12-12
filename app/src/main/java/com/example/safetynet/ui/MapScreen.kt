@@ -14,15 +14,22 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -43,7 +50,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -58,6 +67,10 @@ import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.ReportIncidentDialog
 import com.example.safetynet.ui.components.EmptySafetyPinState
 import com.example.safetynet.ui.components.ViewPinDetailsDialog
+import com.example.safetynet.ui.theme.ColorDarkBackground
+import com.example.safetynet.ui.theme.ColorError
+import com.example.safetynet.ui.theme.ColorOnSurface
+import com.example.safetynet.ui.theme.ColorPrimaryVariant
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -288,14 +301,18 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
             .background(Color(0xFFE0E0FF))
     ) {
         ElevatedCard (
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
             shape = RoundedCornerShape(42.dp),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 6.dp
             ),
             modifier = Modifier
                 .background(Color(0xFFE0E0FF))
-                .padding(52.dp)
-                .size(width = 320.dp, height = 340.dp),
+                .padding(56.dp)
+                .size(width = 311.dp, height = 411.dp),
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -303,10 +320,19 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
                 modifier = Modifier
                     .padding(0.dp)
                     .fillMaxSize()
-                    .background(Color.Red)
             ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    modifier = Modifier.size(120.dp),
+                    contentDescription = "Location Permission Required",
+                    tint = ColorError,
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text = "Location Permission Required",
+                    color = ColorOnSurface,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center
                 )
@@ -315,15 +341,26 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
 
                 Text(
                     text = "This app requires location access to show nearby safety incidents and help keep you safe.",
+                    color = ColorOnSurface,
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Button(onClick = onSettingsClick) {
+                Button(
+                    onClick = onSettingsClick,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .width(158.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = true,
+                    contentPadding = PaddingValues(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = ColorOnSurface)
+                    ) {
                     Text(
                         text = "Open Settings",
+                        color = Color.White,
                         style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center
                     )
