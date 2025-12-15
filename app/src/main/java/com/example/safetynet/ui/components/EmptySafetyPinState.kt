@@ -46,7 +46,8 @@ fun EmptySafetyPinState() {
             ),
             modifier = Modifier
                 .padding(56.dp)
-                .size(width = 600.dp, height = 320.dp),
+                .fillMaxWidth()
+                .height(400.dp)
         ) {
             Column(
                 modifier = Modifier
