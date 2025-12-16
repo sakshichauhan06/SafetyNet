@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement.Top
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides.Companion.Top
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,11 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +44,8 @@ import androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion.Top
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.safetynet.ui.theme.ColorOnSurface
+import com.example.safetynet.ui.theme.ColorPrimaryVariant
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,7 +61,7 @@ fun EmptySafetyPinState() {
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface
             ),
-//            shape = RoundedCornerShape(42.dp),
+            shape = RoundedCornerShape(4.dp),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 6.dp
             ),
@@ -80,15 +85,6 @@ fun EmptySafetyPinState() {
                     tint = Color.Red
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "No Incidents Reported Yet",
-                    style = MaterialTheme.typography.labelMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
@@ -97,6 +93,25 @@ fun EmptySafetyPinState() {
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Button(
+                    onClick = {},
+                    modifier = Modifier
+//                        .padding(16.dp)
+                        .width(258.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = true,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text(
+                        text = "No Incidents Reported Yet",
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

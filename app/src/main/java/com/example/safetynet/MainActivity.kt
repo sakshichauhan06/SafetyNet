@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
 import com.example.safetynet.ui.MainScreen
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.theme.SafetyNetTheme

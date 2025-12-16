@@ -66,7 +66,6 @@ import com.example.safetynet.R
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.ReportIncidentDialog
 import com.example.safetynet.ui.components.EmptySafetyPinState
-import com.example.safetynet.ui.components.NoIncidentsPopUp
 import com.example.safetynet.ui.components.ViewPinDetailsDialog
 import com.example.safetynet.ui.theme.ColorDarkBackground
 import com.example.safetynet.ui.theme.ColorError
@@ -221,7 +220,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues)) {
+            Box(modifier = Modifier.padding(0.dp)) {
                 GoogleMap(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -357,12 +356,12 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
                     shape = RoundedCornerShape(12.dp),
                     enabled = true,
                     contentPadding = PaddingValues(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = ColorOnSurface)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
                     ) {
                     Text(
                         text = "Open Settings",
                         color = Color.White,
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         textAlign = TextAlign.Center
                     )
                 }
