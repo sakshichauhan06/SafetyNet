@@ -66,6 +66,7 @@ import com.example.safetynet.R
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.ReportIncidentDialog
 import com.example.safetynet.ui.components.EmptySafetyPinState
+import com.example.safetynet.ui.components.NoIncidentsPopUp
 import com.example.safetynet.ui.components.ViewPinDetailsDialog
 import com.example.safetynet.ui.theme.ColorDarkBackground
 import com.example.safetynet.ui.theme.ColorError
