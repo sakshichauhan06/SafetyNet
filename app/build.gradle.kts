@@ -95,6 +95,11 @@ dependencies {
 //    implementation(libs.androidx.navigation.compose)
     implementation("androidx.navigation:navigation-compose:2.9.6")
 
+// Coil
+    implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation("io.coil-kt:coil-svg:2.2.2")
+
+
 
     implementation("androidx.customview:customview-poolingcontainer:1.1.0")
 
