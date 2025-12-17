@@ -311,21 +311,21 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
             ),
             modifier = Modifier
                 .background(Color(0xFFE0E0FF))
-                .padding(56.dp)
-                .size(width = 311.dp, height = 411.dp),
+                .padding(46.dp)
+                .size(width = 311.dp, height = 400.dp),
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .padding(0.dp)
+                    .padding(21.dp)
                     .fillMaxSize()
             ) {
-                Icon(
-                    imageVector = Icons.Filled.LocationOn,
-                    modifier = Modifier.size(120.dp),
+                Image(
+                    painter = painterResource(R.drawable.pin),
+                    modifier = Modifier.size(88.dp),
                     contentDescription = "Location Permission Required",
-                    tint = ColorError,
+                    colorFilter = null,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -346,7 +346,7 @@ fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Button(
                     onClick = onSettingsClick,
