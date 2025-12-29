@@ -1,11 +1,13 @@
 package com.example.safetynet.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +43,9 @@ import androidx.compose.ui.unit.sp
 import domain.IncidentType
 import kotlin.math.exp
 import com.example.safetynet.R
+import com.example.safetynet.ui.theme.ColorLightBlue
+import com.example.safetynet.ui.theme.ColorLightestBlue
+import com.example.safetynet.ui.theme.ColorPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,40 +85,80 @@ fun ReportIncidentDialog(
             ) {
                 ExposedDropdownMenuBox(
                     modifier = Modifier
-                        .width(400.dp)
-                        .clip(RoundedCornerShape(5.dp)),
+                        .width(400.dp),
                     expanded = expanded,
                     onExpandedChange = { expanded = it }
                 ) {
-                    OutlinedTextField(
-                        value = selectedIncident?.displayName ?: "What happened?",
+                    TextField(
+                        value = selectedIncident?.displayName ?: "",
                         onValueChange = {},
                         readOnly = true,
+                        label = null,
+                        placeholder = {
+                            Text(
+                                "What happened?",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White)
+                        },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                        colors = TextFieldDefaults.colors(
+                            // background colors
+                            focusedContainerColor = ColorPrimary,
+                            unfocusedContainerColor = ColorPrimary,
+                            disabledContainerColor = ColorPrimary
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color.White
+                        ),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
                     )
 
                     ExposedDropdownMenu(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .background(ColorLightestBlue)
+                            .exposedDropdownSize()
+                            .heightIn(max = 250.dp),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         IncidentType.entries.forEach { type ->
                             DropdownMenuItem(
-                                text = { Text(type.displayName) },
+                                text = {
+                                    Text(
+                                        text = type.displayName,
+                                        style = MaterialTheme.typography.bodyMedium)
+                                },
                                 onClick = {
                                     selectedIncident = type
                                     expanded = false
-                                }
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                             )
                         }
                     }
                 }
 
                 // Additional details optional
-                OutlinedTextField(
+                TextField(
                     value = additionalDetails,
                     onValueChange = { additionalDetails = it },
-                    label = { Text("Additional details (optional)") },
+                    label = {
+                        Text(
+                            text = "Additional details (optional)",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        // background colors
+                        focusedContainerColor = ColorLightestBlue,
+                        unfocusedContainerColor = ColorLightestBlue,
+                        disabledContainerColor = ColorLightestBlue
+                    ),
                     modifier = Modifier.fillMaxWidth().height(100.dp),
                     maxLines = 3
                 )

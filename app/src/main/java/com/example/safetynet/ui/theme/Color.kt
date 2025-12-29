@@ -15,6 +15,8 @@ val ColorOnSecondary = Color.White
 // BackGround Colors
 val ColorLightBackground = Color(0xFFE0E0FF)
 val ColorOnLightBackground = Color(0xFF0A0A1C)
+val ColorLightBlue = Color(0xFFC6DCFF)
+val ColorLightestBlue = Color(0xFFE0EAFF)
 
 val ColorDarkBackground = Color(0xFF0A0A1C)
 val ColorOnDarkBackground = Color.White
