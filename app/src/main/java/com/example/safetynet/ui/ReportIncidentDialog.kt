@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,7 +69,7 @@ fun ReportIncidentDialog(
     BasicAlertDialog (
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        modifier = Modifier.fillMaxWidth(0.95f)
+        modifier = Modifier.fillMaxWidth(0.85f)
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -93,7 +94,8 @@ fun ReportIncidentDialog(
                     )
                     Text(
                         text = "Report Incident",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -108,7 +110,7 @@ fun ReportIncidentDialog(
                         value = selectedIncident?.displayName ?: "",
                         onValueChange = {},
                         readOnly = true,
-                        placeholder = { Text("What happened?", color = Color.White) },
+                        placeholder = { Text("What happened?", color = Color.White, style = MaterialTheme.typography.bodySmall) },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         },
@@ -124,17 +126,18 @@ fun ReportIncidentDialog(
                         ),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.menuAnchor().fillMaxWidth()
+                            .height(49.dp),
                     )
 
                     ExposedDropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
-                        modifier = Modifier.background(ColorLightestBlue).exposedDropdownSize(),
-                        shape = RoundedCornerShape(16.dp)
+                        modifier = Modifier.background(Color.White).exposedDropdownSize(),
+                        shape = RoundedCornerShape(16.dp),
                     ) {
                         IncidentType.entries.forEach { type ->
                             DropdownMenuItem(
-                                text = { Text(type.displayName) },
+                                text = { Text(type.displayName, color = Color.Black, style = MaterialTheme.typography.bodySmall) },
                                 onClick = {
                                     selectedIncident = type
                                     expanded = false
@@ -148,7 +151,7 @@ fun ReportIncidentDialog(
                     value = additionalDetails,
                     onValueChange = { additionalDetails = it },
                     placeholder = {
-                        Text("Additional details (optional)", color = Color.Gray)
+                        Text("Additional details (optional)", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
                     },
                     modifier = Modifier.fillMaxWidth().height(100.dp),
                     colors = TextFieldDefaults.colors(
@@ -169,9 +172,9 @@ fun ReportIncidentDialog(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f), // Buttons share width equally
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFF0A0A1C))
+                        border = BorderStroke(2.dp, Color(0xFF0A0A1C))
                     ) {
-                        Text("Cancel", color = Color(0xFF0A0A1C))
+                        Text("Cancel", color = Color(0xFF0A0A1C), style = MaterialTheme.typography.labelMedium)
                     }
 
                     Button(
@@ -181,7 +184,7 @@ fun ReportIncidentDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
                     ) {
-                        Text("Submit", color = Color.White)
+                        Text("Submit", color = Color.White, style = MaterialTheme.typography.labelMedium)
                     }
                 }
 
