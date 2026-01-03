@@ -110,6 +110,9 @@ fun ReportIncidentDialog(
                         value = selectedIncident?.displayName ?: "",
                         onValueChange = {},
                         readOnly = true,
+                        textStyle = MaterialTheme.typography.bodySmall.copy(
+                            color = Color.White,
+                        ),
                         placeholder = { Text("What happened?", color = Color.White, style = MaterialTheme.typography.bodySmall) },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
