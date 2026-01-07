@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Flag
@@ -66,131 +68,149 @@ fun ReportIncidentDialog(
     var expanded by remember { mutableStateOf(false) }
     var additionalDetails by remember { mutableStateOf("") }
 
+    val iconSize = 88.dp
+    val outsideAmount = 36.dp
+    val internalImagePadding = 18.dp
+
     BasicAlertDialog (
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier.fillMaxWidth(0.85f)
     ) {
-        Surface(
+        Box(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp
+            contentAlignment = Alignment.TopCenter
         ) {
-            Column (
+            Surface(
                 modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxWidth()
+                    .padding(top = outsideAmount),
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Column (
+                    modifier = Modifier
+                        .padding(top = 42.dp, bottom = 32.dp, start = 32.dp, end = 32.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.flag),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Text(
-                        text = "Report Incident",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
-                ExposedDropdownMenuBox(
-                    modifier = Modifier.fillMaxWidth(),
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it }
-                ) {
-                    TextField(
-                        value = selectedIncident?.displayName ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        textStyle = MaterialTheme.typography.bodySmall.copy(
-                            color = Color.White,
-                        ),
-                        placeholder = { Text("What happened?", color = Color.White, style = MaterialTheme.typography.bodySmall) },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = ColorPrimary,
-                            unfocusedContainerColor = ColorPrimary,
-                            disabledContainerColor = ColorPrimary,
-
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent
-                        ),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
-                            .height(49.dp),
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.background(Color.White).exposedDropdownSize(),
-                        shape = RoundedCornerShape(16.dp),
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        IncidentType.entries.forEach { type ->
-                            DropdownMenuItem(
-                                text = { Text(type.displayName, color = Color.Black, style = MaterialTheme.typography.bodySmall) },
-                                onClick = {
-                                    selectedIncident = type
-                                    expanded = false
-                                }
-                            )
+                        Text(
+                            text = "Report Incident",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier.fillMaxWidth(),
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it }
+                    ) {
+                        TextField(
+                            value = selectedIncident?.displayName ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            textStyle = MaterialTheme.typography.bodySmall.copy(
+                                color = Color.White,
+                            ),
+                            placeholder = { Text("What happened?", color = Color.White, style = MaterialTheme.typography.bodySmall) },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                            },
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = ColorPrimary,
+                                unfocusedContainerColor = ColorPrimary,
+                                disabledContainerColor = ColorPrimary,
+
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent
+                            ),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                                .height(49.dp),
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier.background(Color.White).exposedDropdownSize(),
+                            shape = RoundedCornerShape(16.dp),
+                        ) {
+                            IncidentType.entries.forEach { type ->
+                                DropdownMenuItem(
+                                    text = { Text(type.displayName, color = Color.Black, style = MaterialTheme.typography.bodySmall) },
+                                    onClick = {
+                                        selectedIncident = type
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    TextField(
+                        value = additionalDetails,
+                        onValueChange = { additionalDetails = it },
+                        placeholder = {
+                            Text("Additional details (optional)", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        },
+                        modifier = Modifier.fillMaxWidth().height(100.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = ColorLightestBlue,
+                            unfocusedContainerColor = ColorLightestBlue,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f), // Buttons share width equally
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(2.dp, Color(0xFF0A0A1C))
+                        ) {
+                            Text("Cancel", color = Color(0xFF0A0A1C), style = MaterialTheme.typography.labelMedium)
+                        }
+
+                        Button(
+                            onClick = { selectedIncident?.let { onSubmit(it, additionalDetails) } },
+                            enabled = selectedIncident != null,
+                            modifier = Modifier.weight(1f), // Buttons share width equally
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
+                        ) {
+                            Text("Submit", color = Color.White, style = MaterialTheme.typography.labelMedium)
                         }
                     }
                 }
+            }
 
-                TextField(
-                    value = additionalDetails,
-                    onValueChange = { additionalDetails = it },
-                    placeholder = {
-                        Text("Additional details (optional)", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
-                    },
-                    modifier = Modifier.fillMaxWidth().height(100.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = ColorLightestBlue,
-                        unfocusedContainerColor = ColorLightestBlue,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    shape = RoundedCornerShape(16.dp)
+            Surface(
+                modifier = Modifier.size(iconSize),
+                shape = CircleShape,
+                color = Color.Transparent,
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.flag),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(internalImagePadding)
                 )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f), // Buttons share width equally
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(2.dp, Color(0xFF0A0A1C))
-                    ) {
-                        Text("Cancel", color = Color(0xFF0A0A1C), style = MaterialTheme.typography.labelMedium)
-                    }
-
-                    Button(
-                        onClick = { selectedIncident?.let { onSubmit(it, additionalDetails) } },
-                        enabled = selectedIncident != null,
-                        modifier = Modifier.weight(1f), // Buttons share width equally
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
-                    ) {
-                        Text("Submit", color = Color.White, style = MaterialTheme.typography.labelMedium)
-                    }
-                }
-
             }
         }
     }

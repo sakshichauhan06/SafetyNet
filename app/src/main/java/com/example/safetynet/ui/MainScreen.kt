@@ -37,11 +37,12 @@ import domain.Screen
 
 @Composable
 fun MainScreen(mapViewModel: MapViewModel) {
+
+    // get the current route from the nav controller
     val navController = rememberNavController()
     var selectedItemIndex by rememberSaveable {
         mutableStateOf(0)
     }
-
 
     Scaffold(
         bottomBar = {
