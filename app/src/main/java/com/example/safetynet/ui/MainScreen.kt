@@ -37,73 +37,41 @@ import domain.Screen
 
 @Composable
 fun MainScreen(mapViewModel: MapViewModel) {
-
-    // get the current route from the nav controller
     val navController = rememberNavController()
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
+
+    // get the current route from the backstack
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
         bottomBar = {
             NavigationBar {
-                val currentRoute =
-                    navController.currentBackStackEntryAsState().value?.destination?.route
+                bottomNavItems.forEach { item ->
+                    // determine selection based on the current route
+                    val isSelected = currentRoute == item.route
 
-                bottomNavItems.forEachIndexed { index, bottomNavItem ->
                     NavigationBarItem(
-                        selected = index == selectedItemIndex,
-                        onClick = { selectedItemIndex = index },
+                        selected = isSelected,
+                        onClick = {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
                         icon = {
                             BadgedBox(
-                                badge = {
-                                    if(bottomNavItem.badges != 0) {
-                                        Badge {
-                                            Text(
-                                                text = bottomNavItem.badges.toString()
-                                            )
-                                        }
-                                    } else if(bottomNavItem.hasNews) {
-                                        Badge()
-                                    }
-                                }
+                                badge = {  }
                             ) {
                                 Icon(
-                                    imageVector =
-                                        if (index == selectedItemIndex)
-                                            bottomNavItem.selectedItem
-                                        else
-                                            bottomNavItem.unselectedItem,
-                                    contentDescription = bottomNavItem.title
+                                    imageVector = if (isSelected) item.selectedItem else item.unselectedItem,
+                                    contentDescription = item.title
                                 )
                             }
                         },
-                        label = {
-                            Text(bottomNavItem.title)
-                        }
+                        label = { Text(item.title) }
                     )
                 }
-
-//                NavigationBarItem(
-//                    icon = { Icon(Icons.Default.List, "Incidents") },
-//                    label = { Text("Incidents") },
-//                    selected = currentRoute == Screen.Incidents.route,
-//                    onClick = { navController.navigate(Screen.Incidents.route) }
-//                )
-//
-//                NavigationBarItem(
-//                    icon = { Icon(Icons.Default.Place, "Map") },
-//                    label = { Text("Map") },
-//                    selected = currentRoute == Screen.Map.route,
-//                    onClick = { navController.navigate(Screen.Map.route) }
-//                )
-//
-//                NavigationBarItem(
-//                    icon = { Icon(Icons.Default.Person, "Profile") },
-//                    label = { Text("Profile") },
-//                    selected = currentRoute == Screen.Profile.route,
-//                    onClick = { navController.navigate(Screen.Profile.route) }
-//                )
             }
         }
     ) { paddingValues ->
@@ -113,10 +81,11 @@ fun MainScreen(mapViewModel: MapViewModel) {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Screen.Map.route) { MapScreen(mapViewModel) }
-            composable(Screen.Incidents.route) { IncidentsScreen(mapViewModel) }
-            composable(Screen.Profile.route) { ProfileScreen() }
+            composable (Screen.Incidents.route) { IncidentsScreen(mapViewModel) }
+            composable (Screen.Profile.route) { ProfileScreen() }
         }
     }
+
 }
 
 val bottomNavItems = listOf(
