@@ -1,13 +1,16 @@
 package com.example.safetynet.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,14 +28,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.safetynet.R
 import data.SafetyPin
 import domain.SeverityLevel
 import utils.TimeUtils
+import com.example.safetynet.ui.theme.ColorCritical
 
 // title, detailed desc., timestamp, circle: SEVERITY, Buttons: Cancel & Delete
 
@@ -43,6 +53,8 @@ fun ViewPinDetailsDialog(
     onDismiss: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val noisePainter = painterResource(id = R.drawable.noise_texture)
+    val (topColor, bottomColor) = getSecerityColorGradient(pin.severity)
     BasicAlertDialog (
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -58,93 +70,105 @@ fun ViewPinDetailsDialog(
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surface,
         ) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp)
                     .background(
-                        MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(16.dp)
-                    ),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Title
-                Text(
-                    text = pin.shortDescription,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                // Detailed Description
-                Text(
-                    text = pin.detailedDescription,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                )
-
-                // Timestamp
-                Box(
-                    modifier = Modifier
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(8.dp)
+                        brush = Brush.verticalGradient(
+                            0.0f to topColor,
+                            0.25f to bottomColor,
+                            0.25f to MaterialTheme.colorScheme.surface,
+                            1f to MaterialTheme.colorScheme.surface
                         )
-                        .padding(12.dp)
-                ) {
-                    Text(
-                        text = "📅 ${TimeUtils.getRelativeTime(pin.timestamp)}",
-                        style = MaterialTheme.typography.labelSmall
                     )
-                }
-
-                // Severity
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Title
+                    Text(
+                        text = pin.shortDescription,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+
+                    // Detailed Description
+                    Text(
+                        text = pin.detailedDescription,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+
+                    // Timestamp
                     Box(
                         modifier = Modifier
-                            .size(16.dp)
-                            .clip(CircleShape)
-                            .background(getSeverityColor(pin.severity))
-                    )
-                    Text(
-                        text = pin.severity.displayName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                // Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-
-                ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f), // Buttons share width equally
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(2.dp, Color(0xFF0A0A1C))
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(12.dp)
                     ) {
-                        Text("Cancel", color = Color(0xFF0A0A1C), style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            text = "📅 ${TimeUtils.getRelativeTime(pin.timestamp)}",
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
 
-                    Button(
-                        onClick = onDelete,
-                        modifier = Modifier.weight(1f), // Buttons share width equally
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
-                    ) {
-                        Text("Delete", color = Color.White, style = MaterialTheme.typography.labelMedium)
-                    }
-                }
+                    // Severity
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
 
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(getSeverityColor(pin.severity))
+                        )
+                        Text(
+                            text = pin.severity.displayName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    // Buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+
+                    ) {
+                        // Cancel button
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f), // Buttons share width equally
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(2.dp, Color(0xFF0A0A1C))
+                        ) {
+                            Text("Cancel", color = Color(0xFF0A0A1C), style = MaterialTheme.typography.labelMedium)
+                        }
+
+                        // Delete button
+                        Button(
+                            onClick = onDelete,
+                            modifier = Modifier.weight(1f), // Buttons share width equally
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = ColorCritical)
+                        ) {
+                            Text("Delete", color = Color.White, style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+
+                }
             }
         }
     }
@@ -156,5 +180,22 @@ private fun getSeverityColor(severity: SeverityLevel): Color {
         SeverityLevel.ORANGE -> Color(0xFFE67E22)
         SeverityLevel.YELLOW -> Color(0xFFF1C40F)
         SeverityLevel.GREEN -> Color(0xFF2ECC71)
+    }
+}
+
+private fun getSecerityColorGradient(severity: SeverityLevel): Pair<Color, Color> {
+    return when(severity) {
+        SeverityLevel.RED -> {
+            Color(0xFFFFA6A7) to Color(0xFFFFEDED)
+        }
+        SeverityLevel.ORANGE -> {
+            Color(0xFFFFB78D) to Color(0xFFFFEDEB)
+        }
+        SeverityLevel.YELLOW -> {
+            Color(0xFFFFDA8F) to Color(0xFFFFF4DF)
+        }
+        SeverityLevel.GREEN -> {
+            Color(0xFFACFFC8) to Color(0xFFF1FFF5)
+        }
     }
 }

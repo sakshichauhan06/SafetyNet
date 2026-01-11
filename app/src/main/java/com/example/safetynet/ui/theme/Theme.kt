@@ -32,6 +32,7 @@ private val DarkColorScheme = darkColorScheme(
     error = ColorError,
     onError = ColorOnError,
 
+
     tertiary = Pink80
 )
 

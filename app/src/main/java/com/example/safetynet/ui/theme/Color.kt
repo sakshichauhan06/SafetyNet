@@ -29,6 +29,8 @@ val ColorOnSurface = Color(0xFF0A0A1C)
 val ColorError = Color(0xFFD32F2F)
 val ColorOnError = Color.White
 
+val ColorCritical = Color(0xFFEB2A34)
+
 
 
 // Neutral Colors
