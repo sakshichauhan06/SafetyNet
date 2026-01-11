@@ -92,12 +92,15 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // NavHost
-//    implementation(libs.androidx.navigation.compose)
+    // implementation(libs.androidx.navigation.compose)
     implementation("androidx.navigation:navigation-compose:2.9.6")
 
-// Coil
+    // Coil
     implementation("io.coil-kt:coil-compose:2.2.2")
     implementation("io.coil-kt:coil-svg:2.2.2")
+
+    // splash screen
+    implementation("androidx.core:core-splashscreen:1.2.0")
 
 
 
