@@ -75,10 +75,12 @@ fun ReportIncidentDialog(
     BasicAlertDialog (
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        modifier = Modifier.fillMaxWidth(0.85f)
+        modifier = Modifier
+            .fillMaxWidth(0.85f)
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             contentAlignment = Alignment.TopCenter
         ) {
             Surface(
@@ -86,7 +88,7 @@ fun ReportIncidentDialog(
                     .fillMaxWidth()
                     .padding(top = outsideAmount),
                 shape = RoundedCornerShape(28.dp),
-                color = MaterialTheme.colorScheme.surface,
+                color = Color.White,
                 tonalElevation = 6.dp
             ) {
                 Column (
