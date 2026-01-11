@@ -27,11 +27,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 //import androidx.navigation.NavHost // incorrect import
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.safetynet.SplashScreen
 import domain.Screen
 
 
@@ -45,41 +47,44 @@ fun MainScreen(mapViewModel: MapViewModel) {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                bottomNavItems.forEach { item ->
-                    // determine selection based on the current route
-                    val isSelected = currentRoute == item.route
+            if (currentRoute != "splash") {
+                NavigationBar {
+                    bottomNavItems.forEach { item ->
+                        // determine selection based on the current route
+                        val isSelected = currentRoute == item.route
 
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            BadgedBox(
-                                badge = {  }
-                            ) {
-                                Icon(
-                                    imageVector = if (isSelected) item.selectedItem else item.unselectedItem,
-                                    contentDescription = item.title
-                                )
-                            }
-                        },
-                        label = { Text(item.title) }
-                    )
+                        NavigationBarItem(
+                            selected = isSelected,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = {
+                                BadgedBox(
+                                    badge = {  }
+                                ) {
+                                    Icon(
+                                        imageVector = if (isSelected) item.selectedItem else item.unselectedItem,
+                                        contentDescription = item.title
+                                    )
+                                }
+                            },
+                            label = { Text(item.title) }
+                        )
+                    }
                 }
             }
         }
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Map.route,
-            modifier = Modifier.padding(paddingValues)
+            startDestination = "splash",
+            modifier = Modifier.padding(if (currentRoute != "splash") paddingValues else androidx.compose.foundation.layout.PaddingValues(0.dp) )
         ) {
+            composable ("splash") { SplashScreen(navController) }
             composable(Screen.Map.route) { MapScreen(mapViewModel) }
             composable (Screen.Incidents.route) { IncidentsScreen(mapViewModel) }
             composable (Screen.Profile.route) { ProfileScreen() }
