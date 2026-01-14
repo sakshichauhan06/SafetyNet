@@ -3,6 +3,7 @@ import android.R.attr.onClick
 import android.R.attr.text
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Icon
 import android.net.Uri
 import android.provider.Settings
 import android.view.Surface
@@ -22,9 +23,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,11 +77,17 @@ import com.example.safetynet.ui.theme.ColorOnSurface
 import com.example.safetynet.ui.theme.ColorPrimaryVariant
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import data.SafetyPin
 import domain.SeverityLevel
 import timber.log.Timber
@@ -106,6 +116,19 @@ fun MapScreen(mapViewModel: MapViewModel) {
     var permissionDenied by remember { mutableStateOf(false) }
 
     val showEmptyState = !isLoading && safetyPins.isEmpty()
+
+    var hasInitiallyCentered by remember { mutableStateOf(false) }
+
+
+    val mapProperties = remember {
+        MapProperties(
+            mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style)
+        )
+    }
+
+    val uiSettings = remember {
+        MapUiSettings(zoomControlsEnabled = false)
+    }
 
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -225,6 +248,8 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     modifier = Modifier
                         .fillMaxSize(),
                     cameraPositionState = cameraPositionState,
+                    properties = mapProperties,
+                    uiSettings = uiSettings,
                     onMapClick = { latLng ->
                         mapViewModel.onMapTapped(latLng)
                     }
@@ -236,26 +261,27 @@ fun MapScreen(mapViewModel: MapViewModel) {
                             title = "Your Location"
                         )
                         LaunchedEffect(location) {
-                            cameraPositionState.animate(
-                                CameraUpdateFactory.newLatLngZoom(
-                                    location, AppConstants.DEFAULT_MAP_ZOOM
+                            if (!hasInitiallyCentered) {
+                                cameraPositionState.animate(
+                                    CameraUpdateFactory.newLatLngZoom(location, AppConstants.DEFAULT_MAP_ZOOM)
                                 )
-                            )
+                                hasInitiallyCentered = true
+                            }
                         }
                     }
 
                     // display all saved pins inside GoogleMap Block
                     safetyPins.forEach { pin ->
-                        Marker(
-                            state = MarkerState(position = LatLng(pin.latitude, pin.longitude)),
-                            title = pin.shortDescription,
-                            snippet = "Severity: ${pin.severity}",
-                            icon = BitmapDescriptorFactory.defaultMarker(getMarkerColor(pin.severity)),
-                            onClick = {
-                                mapViewModel.onPinSelected(pin)
-                                true
-                            }
-                        )
+                        key(pin.id) {
+                            SafetyMarker(
+                                position = LatLng(pin.latitude, pin.longitude),
+                                severity = pin.severity,
+                                title = pin.shortDescription,
+                                onMarkerClick = {
+                                    mapViewModel.onPinSelected(pin)
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -282,12 +308,44 @@ fun MapScreen(mapViewModel: MapViewModel) {
 
 }
 
-fun getMarkerColor(severity: SeverityLevel): Float {
-    return when(severity) {
-        SeverityLevel.RED -> BitmapDescriptorFactory.HUE_RED
-        SeverityLevel.ORANGE -> BitmapDescriptorFactory.HUE_ORANGE
-        SeverityLevel.YELLOW -> BitmapDescriptorFactory.HUE_YELLOW
-        SeverityLevel.GREEN -> BitmapDescriptorFactory.HUE_GREEN
+@Composable
+fun SafetyMarker(
+    position: LatLng,
+    severity: SeverityLevel,
+    title: String,
+    onMarkerClick: () -> Unit
+) {
+    val markerState = rememberMarkerState(position = position)
+
+    val (markerColor, icon) = when (severity) {
+        SeverityLevel.RED  -> Color(0xFFEB2A34) to Icons.Default.Warning
+        SeverityLevel.ORANGE -> Color(0xFFE67E22) to Icons.Default.Warning
+        SeverityLevel.YELLOW -> Color(0xFFF1C40F) to Icons.Default.LocationOn
+        SeverityLevel.GREEN -> Color(0xFF2ECC71) to Icons.Default.LocationOn
+    }
+
+    MarkerComposable(
+        state = markerState,
+        title = title,
+        onClick = {
+            onMarkerClick()
+            true
+        }
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(markerColor, CircleShape)
+                .border(2.dp, Color.White, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(18.dp)
+            )
+        }
     }
 }
 
