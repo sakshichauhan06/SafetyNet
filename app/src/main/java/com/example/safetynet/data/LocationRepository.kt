@@ -1,8 +1,9 @@
-package data
+package com.example.safetynet.data
 
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
 import kotlin.coroutines.resume
 
 /**
@@ -14,7 +15,7 @@ import kotlin.coroutines.resume
  * @return Result.success with LatLng if location found, Result.failure if unavailable or error occurs
  */
 
-class LocationRepository(
+class LocationRepository @Inject constructor(
     private val safetyPinDao: SafetyPinDao,
     private val fusedLocationClient: FusedLocationProviderClient
 ) {

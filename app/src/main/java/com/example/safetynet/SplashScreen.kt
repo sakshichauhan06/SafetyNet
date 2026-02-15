@@ -1,6 +1,5 @@
 package com.example.safetynet
 
-import android.window.SplashScreen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -28,11 +27,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import domain.Screen
+import com.example.safetynet.ui.auth.AuthViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(navController: NavController, authViewModel: AuthViewModel) {
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -40,7 +39,11 @@ fun SplashScreen(navController: NavController) {
 
         delay(3000)
 
-        navController.navigate(Screen.Map.route) {
+//        navController.navigate(Screen.Map.route) {
+//            popUpTo("splash") { inclusive = true }
+//        }
+
+        navController.navigate("login") {
             popUpTo("splash") { inclusive = true }
         }
     }

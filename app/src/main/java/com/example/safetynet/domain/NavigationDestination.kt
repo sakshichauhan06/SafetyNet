@@ -1,4 +1,4 @@
-package domain
+package com.example.safetynet.domain
 
 sealed class Screen(val route: String) {
     object Map : Screen("map")

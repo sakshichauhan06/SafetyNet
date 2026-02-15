@@ -6,6 +6,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -15,7 +18,7 @@ android {
     defaultConfig {
         applicationId = "com.example.safetynet"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -32,12 +35,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlin {
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
+            jvmTarget = JvmTarget.JVM_17
         }
     }
     buildFeatures {
@@ -46,6 +49,19 @@ android {
     }
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
+    }
+    sourceSets {
+        getByName("main").assets.srcDirs(File("$projectDir/schemas"))
+    }
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion("2.1.0")
+            }
+            if (requested.group == "org.jetbrains.kotlinx" && requested.name.contains("serialization")) {
+                useVersion("1.8.1")
+            }
+        }
     }
 }
 
@@ -87,6 +103,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.kotlinx.serialization.json)
 
     // For Icons.Filled, Icons.Outlined, etc.
     implementation("androidx.compose.material:material-icons-extended")
@@ -102,7 +119,25 @@ dependencies {
     // splash screen
     implementation("androidx.core:core-splashscreen:1.2.0")
 
+    //Firebase BOM
+    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
 
+    // Firebase authentication
+    implementation("com.google.firebase:firebase-auth")
+
+    // Firebase Cloud Firestore
+    implementation("com.google.firebase:firebase-firestore")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
+
+    // Dagger-Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
+//    implementation("com.google.dagger:hilt-android:2.59")
+//    ksp("com.google.dagger:hilt-android-compiler:2.59")
+//    ksp("androidx.hilt:hilt-compiler:1.3.0")
+//    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     implementation("androidx.customview:customview-poolingcontainer:1.1.0")
 

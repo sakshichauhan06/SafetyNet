@@ -1,10 +1,11 @@
-package usecases
+package com.example.safetynet.usecases
 
+import com.example.safetynet.data.SafetyPin
+import com.example.safetynet.data.SafetyPinRepository
 import com.google.android.gms.maps.model.LatLng
-import data.SafetyPin
-import data.SafetyPinRepository
-import utils.AppConstants
-import utils.LocationUtils
+import com.example.safetynet.utils.AppConstants
+import com.example.safetynet.utils.LocationUtils
+import javax.inject.Inject
 
 /**
  * Saves a safety pin to the database after validating no duplicates exist nearby.
@@ -17,13 +18,15 @@ import utils.LocationUtils
  * @return Result.success(Unit) if saved successfully, Result.failure if duplicate found or save failed
  */
 
-class SavePinUseCase(private val repository: SafetyPinRepository) {
+class SavePinUseCase @Inject constructor(
+    private val repository: SafetyPinRepository
+) {
 
 
     suspend operator fun invoke(safetyPin: SafetyPin): Result<Unit> {
 
         // get all the existing pins
-        val existingPinsResult = repository.getAllPins()
+        val existingPinsResult = repository.getAllPinsFromCloud()
 
         // handle if getting pins fails
         if (existingPinsResult.isFailure) {
@@ -47,7 +50,7 @@ class SavePinUseCase(private val repository: SafetyPinRepository) {
         }
 
         // duplicate checking
-        return repository.insertPin(safetyPin)
+        return repository.savePin(safetyPin)
     }
 
 }

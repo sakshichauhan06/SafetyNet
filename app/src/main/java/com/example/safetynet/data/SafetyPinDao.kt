@@ -1,4 +1,4 @@
-package data
+package com.example.safetynet.data
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -11,13 +11,13 @@ interface SafetyPinDao {
     @Insert
     suspend fun insert(safetyPin: SafetyPin)
 
-    @Query("SELECT * FROM SafetyPin")
+    @Query("SELECT * FROM safety_pins")
     suspend fun getAllPins(): List<SafetyPin>
 
     @Delete
     suspend fun delete(safetyPin: SafetyPin)
 
-    @Query("DELETE FROM SafetyPin WHERE id = :pinId")
-    suspend fun deleteById(pinId: Long)
+    @Query("DELETE FROM safety_pins WHERE id = :pinId")
+    suspend fun deleteById(pinId: String)
 
 }

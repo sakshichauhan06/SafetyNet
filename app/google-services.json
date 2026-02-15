@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "804915311997",
+    "project_id": "safetynet-26d26",
+    "storage_bucket": "safetynet-26d26.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804915311997:android:e8c93508073023f3ddc814",
+        "android_client_info": {
+          "package_name": "com.example.safetynet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1BSOFYXf5QdmihpSDPc5PAS_oelyV_DM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

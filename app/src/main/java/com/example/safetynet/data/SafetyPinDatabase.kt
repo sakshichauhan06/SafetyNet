@@ -1,4 +1,4 @@
-package data
+package com.example.safetynet.data
 
 import android.content.Context
 import androidx.room.Database
@@ -6,9 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import domain.IncidentType
-import domain.SeverityLevel
-import utils.AppConstants
+import com.example.safetynet.domain.IncidentType
+import com.example.safetynet.domain.SeverityLevel
+import com.example.safetynet.utils.AppConstants
 
 
 @Database(entities = [SafetyPin::class], version = AppConstants.DATABASE_VERSION, exportSchema = true)
@@ -28,7 +28,7 @@ abstract class SafetyPinDatabase : RoomDatabase() {
                     SafetyPinDatabase::class.java,
                     AppConstants.DATABASE_NAME
                 )
-                    .fallbackToDestructiveMigration()
+//                    .fallbackToDestructiveMigration()
 //                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
                 INSTANCE = instance

@@ -1,4 +1,4 @@
-package utils
+package com.example.safetynet.utils
 
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.atan2

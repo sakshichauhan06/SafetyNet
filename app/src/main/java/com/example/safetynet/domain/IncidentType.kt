@@ -1,4 +1,4 @@
-package domain
+package com.example.safetynet.domain
 
 enum class IncidentType(
     val displayName: String,

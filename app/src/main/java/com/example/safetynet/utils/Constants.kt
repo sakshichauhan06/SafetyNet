@@ -1,4 +1,4 @@
-package utils
+package com.example.safetynet.utils
 
 object AppConstants {
 

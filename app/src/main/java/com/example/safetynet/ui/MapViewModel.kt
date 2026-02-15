@@ -1,24 +1,19 @@
 package com.example.safetynet.ui
 
-import android.content.Context
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.TimeInput
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.example.safetynet.data.LocationRepository
+import com.example.safetynet.data.SafetyPin
 import com.google.android.gms.maps.model.LatLng
-import data.LocationRepository
-import data.SafetyPin
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import usecases.DeletePinUseCase
-import usecases.GetAllPinsUseCase
-import usecases.SavePinUseCase
+import com.example.safetynet.usecases.DeletePinUseCase
+import com.example.safetynet.usecases.GetAllPinsUseCase
+import com.example.safetynet.usecases.SavePinUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 /**
  * ViewModel for the MapScreen
@@ -37,7 +32,8 @@ import usecases.SavePinUseCase
  *
  */
 
-class MapViewModel(
+@HiltViewModel
+class MapViewModel @Inject constructor (
     private val locationRepository: LocationRepository,
     private val savePinUseCase: SavePinUseCase,
     private val getAllPinsUseCase: GetAllPinsUseCase,
