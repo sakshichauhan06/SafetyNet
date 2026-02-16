@@ -2,6 +2,7 @@ package com.example.safetynet.data
 
 import androidx.compose.runtime.snapshotFlow
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -62,13 +63,28 @@ class SafetyPinRepository @Inject constructor(
      */
     suspend fun deletePin(pinId: String): Result<Unit> {
         return try {
-            firestore.collection("incidents").document().delete().await()
+            firestore.collection("incidents").document(pinId).delete().await()
 
             safetyPinDao.deleteById(pinId)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    fun getPinsRealtime(): Flow<List<SafetyPin>> = callbackFlow {
+        val subscription = firestore.collection("incidents")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val pins = snapshot.toObjects(SafetyPin::class.java)
+                    trySend(pins)
+                }
+            }
+        awaitClose { subscription.remove() }
     }
 
 }

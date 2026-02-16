@@ -175,4 +175,6 @@ class MapViewModel @Inject constructor (
         _errorMessage.value = null
     }
 
+
+
 }
