@@ -30,12 +30,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = Firebase.firestore
-
-    @Provides
-    @Singleton
-    fun providesAuthRepositoryImp(firebaseAuth: FirebaseAuth) : AuthRepository {
-        return AuthRepositoryImpl(firebaseAuth = firebaseAuth)
-    }
+//
+//    @Provides
+//    @Singleton
+//    fun providesAuthRepositoryImp(firebaseAuth: FirebaseAuth) : AuthRepository {
+//        return AuthRepositoryImpl(firebaseAuth = firebaseAuth)
+//    }
 
     // Database providers
     @Provides

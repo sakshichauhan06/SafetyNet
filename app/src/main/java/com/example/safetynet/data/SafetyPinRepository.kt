@@ -2,9 +2,12 @@ package com.example.safetynet.data
 
 import androidx.compose.runtime.snapshotFlow
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -79,11 +82,22 @@ class SafetyPinRepository @Inject constructor(
                     return@addSnapshotListener
                 }
 
-                if (snapshot != null) {
-                    val pins = snapshot.toObjects(SafetyPin::class.java)
-                    trySend(pins)
+                snapshot?.let { querySnapshot ->
+                    val pins = querySnapshot.toObjects(SafetyPin::class.java)
+
+                    // 1. Send to the UI immediately
+                    trySend(pins) // emits the new list of pins to the flow
+
+                    // 2. Sync with the ROOM in the bg
+                    CoroutineScope(Dispatchers.IO).launch {
+                        pins.forEach { pin ->
+                            safetyPinDao.insert(pin)
+                        }
+                    }
                 }
             }
+
+        // Stops the listener when the user leaves the screen
         awaitClose { subscription.remove() }
     }
 

@@ -28,7 +28,7 @@ abstract class SafetyPinDatabase : RoomDatabase() {
                     SafetyPinDatabase::class.java,
                     AppConstants.DATABASE_NAME
                 )
-//                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()
 //                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
                 INSTANCE = instance

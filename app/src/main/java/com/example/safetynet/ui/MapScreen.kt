@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.safetynet.R
 import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.ui.MapViewModel
@@ -74,6 +76,7 @@ import com.google.maps.android.compose.rememberMarkerState
 import com.example.safetynet.domain.SeverityLevel
 import timber.log.Timber
 import com.example.safetynet.utils.AppConstants
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 
 @Composable
@@ -84,7 +87,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
     val cameraPositionState = rememberCameraPositionState()
     val isLoading by mapViewModel.isLoading
 
-    val safetyPins by mapViewModel.safetyPins
+    val safetyPins by mapViewModel.safetyPins.collectAsStateWithLifecycle()
 
     val showDialog by mapViewModel.showDialog
     val tappedLocation by mapViewModel.tappedLocation
@@ -164,12 +167,6 @@ fun MapScreen(mapViewModel: MapViewModel) {
         }
     }
 
-    // Load pins whenever userLocation changes
-    LaunchedEffect(userLocation) {
-        if (userLocation != null) {
-            mapViewModel.loadAllPins()
-        }
-    }
 
     // Show error snackbar when error occurs
     LaunchedEffect(errorMessage) {
@@ -297,7 +294,7 @@ fun SafetyMarker(
     title: String,
     onMarkerClick: () -> Unit
 ) {
-    val markerState = rememberMarkerState(position = position)
+    val markerState = rememberUpdatedMarkerState(position = position)
 
     val (markerColor, icon) = when (severity) {
         SeverityLevel.RED  -> Color(0xFFEB2A34) to Icons.Default.Warning

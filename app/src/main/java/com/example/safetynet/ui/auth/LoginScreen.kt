@@ -13,10 +13,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -39,25 +45,32 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 
 @Composable
 fun LoginScreen(
-    authViewModel: AuthViewModel,
+    viewModel: AuthViewModel = hiltViewModel(),
     navController: NavController
 ) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val authState by authViewModel.authState.collectAsState()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val isChecked = remember { mutableStateOf(false) }
+
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(authState) {
         when(authState) {
@@ -104,7 +117,7 @@ fun LoginScreen(
                         append(" Sign Up")
                     }
                 },
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.labelMedium
             )
         }
 
@@ -118,10 +131,14 @@ fun LoginScreen(
             label = {
                 Text(
                     text = "Email Address",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Gray
                 )
-            }
+            },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                color = Color.Black,
+            )
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -134,10 +151,31 @@ fun LoginScreen(
             label = {
                 Text(
                     text = "Password",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Gray
                 )
-            }
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (isPasswordVisible)
+                    Icons.Filled.Visibility
+                else
+                    Icons.Filled.VisibilityOff
+
+                val description = if (isPasswordVisible)
+                    "Hide Password"
+                else
+                    "Show Password"
+
+                IconButton(onClick = {isPasswordVisible = !isPasswordVisible}) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                color = Color.Black,
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -153,7 +191,7 @@ fun LoginScreen(
                 Checkbox(
                     checked = isChecked.value,
                     onCheckedChange = { isChecked.value = it },
-                    modifier = Modifier.padding(8.dp),
+//                    modifier = Modifier.padding(8.dp),
                     enabled = true,
                     colors = CheckboxDefaults.colors(
                         checkedColor = Color.Blue,
@@ -164,7 +202,7 @@ fun LoginScreen(
                 )
                 Text(
                     text = if (authState == AuthState.Loading) "Loading..." else "Remember me",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Gray
                 )
             }
@@ -174,7 +212,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Forgot Password?",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.Blue
                 )
             }
@@ -184,7 +222,7 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                authViewModel.login(email, password)
+                viewModel.login(email, password)
             },
             enabled = authState != AuthState.Loading,
             modifier = Modifier
@@ -196,7 +234,7 @@ fun LoginScreen(
             Text(
                 text = "Login",
                 color = Color.White,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center
             )
         }

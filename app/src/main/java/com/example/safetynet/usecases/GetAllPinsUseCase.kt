@@ -6,6 +6,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.example.safetynet.domain.SeverityLevel
 import com.example.safetynet.utils.AppConstants
 import com.example.safetynet.utils.LocationUtils
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
@@ -22,37 +24,30 @@ class GetAllPinsUseCase @Inject constructor(
     private val repository: SafetyPinRepository
 ) {
 
-    suspend operator fun invoke(userLocation: LatLng?): Result<List<SafetyPin>> {
-        // radius filtering and sorting
+    operator fun invoke(userLocation: LatLng?): Flow<List<SafetyPin>> {
+        // 1. Get the raw real-time stream from the repo
+        return repository.getPinsRealtime().map { allPins ->
 
-        // 1. get all the pins from the repository
-        val allPins = repository.getAllPinsFromCloud()
+            // 2. If no user location, return all pins unsorted
+            if (userLocation == null) {
+                return@map allPins
+            }
 
-        // 2. if no user location, return all pins (can't filter)
-        if (userLocation == null) {
-            return allPins
+            // 3. Filter pins within MAX_PIN_DISPLAY_RADIUS_METERS
+            val radiusFilteredList = allPins.filter { pin ->
+                val distance = LocationUtils.calculateDistance(
+                    LatLng(pin.latitude, pin.longitude),
+                    userLocation
+                )
+                distance <= AppConstants.MAX_PIN_DISPLAY_RADIUS_METERS
+            }
+
+            // 4. Sort by severity (Red -> Green) and then by distance
+            radiusFilteredList.sortedWith(compareBy(
+                { severityPriority(it.severity) },
+                { LocationUtils.calculateDistance(LatLng(it.latitude, it.longitude), userLocation) }
+            ))
         }
-
-        // 3. filter pins within MAX_RADIUS_METERS
-        val allPinsList = allPins.getOrNull() ?: emptyList()
-        val radiusFilteredList = allPinsList.filter { pin ->
-            val distance = LocationUtils.calculateDistance(
-                LatLng(pin.latitude, pin.longitude),
-                LatLng(userLocation.latitude, userLocation.longitude)
-            )
-
-            distance <= AppConstants.MAX_PIN_DISPLAY_RADIUS_METERS
-        }
-
-        // 4. sort by severity (red -> orange -> yellow -> green)
-        // and then by distance
-        val sortedPins = radiusFilteredList.sortedWith(compareBy(
-            { severityPriority(it.severity) },
-            { LocationUtils.calculateDistance(LatLng(it.latitude, it.longitude), userLocation) }
-        ))
-
-        // 5. wrap in Result / return filtered list
-        return Result.success(sortedPins)
     }
 
     private fun severityPriority(severity: SeverityLevel): Int {

@@ -12,10 +12,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,8 +42,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 
@@ -54,6 +64,8 @@ fun SignupScreen(
     val context = LocalContext.current
 
     val isChecked = remember { mutableStateOf(false) }
+
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(authState.value) {
         when(authState.value) {
@@ -98,7 +110,7 @@ fun SignupScreen(
                         append(" Login")
                     }
                 },
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.labelMedium
             )
         }
 
@@ -112,10 +124,14 @@ fun SignupScreen(
             label = {
                 Text(
                     text = "Email Address",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Gray
                 )
-            }
+            },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                color = Color.Black,
+            )
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -128,10 +144,31 @@ fun SignupScreen(
             label = {
                 Text(
                     text = "Enter your Password",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Gray
                 )
-            }
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (isPasswordVisible)
+                    Icons.Filled.Visibility
+                else
+                    Icons.Filled.VisibilityOff
+
+                val description = if (isPasswordVisible)
+                    "Hide Password"
+                else
+                    "Show Password"
+
+                IconButton(onClick = {isPasswordVisible = !isPasswordVisible}) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                color = Color.Black,
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -147,7 +184,7 @@ fun SignupScreen(
                 Checkbox(
                     checked = isChecked.value,
                     onCheckedChange = { isChecked.value = it },
-                    modifier = Modifier.padding(8.dp),
+//                    modifier = Modifier.padding(8.dp),
                     enabled = true,
                     colors = CheckboxDefaults.colors(
                         checkedColor = Color.Blue,
@@ -158,7 +195,7 @@ fun SignupScreen(
                 )
                 Text(
                     text = if (authState == AuthState.Loading) "Loading..." else "Remember me",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Gray
                 )
             }
@@ -168,7 +205,7 @@ fun SignupScreen(
             ) {
                 Text(
                     text = "Forgot Password?",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.Blue
                 )
             }
@@ -190,7 +227,7 @@ fun SignupScreen(
             Text(
                 text = "Sign Up",
                 color = Color.White,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center
             )
         }
@@ -202,7 +239,7 @@ fun SignupScreen(
             style = MaterialTheme.typography.bodyMedium
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
