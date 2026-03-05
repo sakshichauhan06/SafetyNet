@@ -78,9 +78,13 @@ class SafetyPinRepository @Inject constructor(
      */
     suspend fun deletePin(pinId: String): Result<Unit> {
         return try {
-            firestore.collection("incidents").document(pinId).delete().await()
-
+            // 1. Delete the pin from the Local DB first
             safetyPinDao.deleteById(pinId)
+
+            // 2. Fire and forget the cloud delete (it happens in the background)
+            firestore.collection("incidents").document(pinId).delete()
+
+            // 3. Return success
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

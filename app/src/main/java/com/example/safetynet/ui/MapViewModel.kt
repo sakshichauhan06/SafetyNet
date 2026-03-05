@@ -156,6 +156,7 @@ class MapViewModel @Inject constructor (
             deletePinUseCase(pin.id)
                 .onSuccess {
                     onPinDetailsDialogDismiss()
+                    Timber.d("Pin deleted successfully")
                 }
                 .onFailure { exception ->
                     _errorMessage.value = "Failed to delete pin: ${exception.message}"
