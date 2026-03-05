@@ -25,29 +25,30 @@ class GetAllPinsUseCase @Inject constructor(
 ) {
 
     operator fun invoke(userLocation: LatLng?): Flow<List<SafetyPin>> {
+        return repository.getPinsFromRoom()
         // 1. Get the raw real-time stream from the repo
-        return repository.getPinsRealtime().map { allPins ->
-
-            // 2. If no user location, return all pins unsorted
-            if (userLocation == null) {
-                return@map allPins
-            }
-
-            // 3. Filter pins within MAX_PIN_DISPLAY_RADIUS_METERS
-            val radiusFilteredList = allPins.filter { pin ->
-                val distance = LocationUtils.calculateDistance(
-                    LatLng(pin.latitude, pin.longitude),
-                    userLocation
-                )
-                distance <= AppConstants.MAX_PIN_DISPLAY_RADIUS_METERS
-            }
-
-            // 4. Sort by severity (Red -> Green) and then by distance
-            radiusFilteredList.sortedWith(compareBy(
-                { severityPriority(it.severity) },
-                { LocationUtils.calculateDistance(LatLng(it.latitude, it.longitude), userLocation) }
-            ))
-        }
+//        return repository.getPinsRealtime().map { allPins ->
+//
+//            // 2. If no user location, return all pins unsorted
+//            if (userLocation == null) {
+//                return@map allPins
+//            }
+//
+//            // 3. Filter pins within MAX_PIN_DISPLAY_RADIUS_METERS
+//            val radiusFilteredList = allPins.filter { pin ->
+//                val distance = LocationUtils.calculateDistance(
+//                    LatLng(pin.latitude, pin.longitude),
+//                    userLocation
+//                )
+//                distance <= AppConstants.MAX_PIN_DISPLAY_RADIUS_METERS
+//            }
+//
+//            // 4. Sort by severity (Red -> Green) and then by distance
+//            radiusFilteredList.sortedWith(compareBy(
+//                { severityPriority(it.severity) },
+//                { LocationUtils.calculateDistance(LatLng(it.latitude, it.longitude), userLocation) }
+//            ))
+//        }
     }
 
     private fun severityPriority(severity: SeverityLevel): Int {

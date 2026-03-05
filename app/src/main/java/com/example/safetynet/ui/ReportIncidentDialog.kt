@@ -35,8 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.example.safetynet.domain.IncidentType
 import com.example.safetynet.R
@@ -151,6 +153,10 @@ fun ReportIncidentDialog(
                         placeholder = {
                             Text("Additional details (optional)", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
                         },
+                        textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                        ),
                         modifier = Modifier.fillMaxWidth().height(100.dp),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = ColorLightestBlue,

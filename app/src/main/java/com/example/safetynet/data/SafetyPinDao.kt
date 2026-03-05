@@ -16,6 +16,9 @@ interface SafetyPinDao {
     @Query("SELECT * FROM safety_pins")
     fun getAllPins(): Flow<List<SafetyPin>>
 
+    @Query("SELECT * FROM safety_pins")
+    suspend fun getAllPinsAsList(): List<SafetyPin>
+
     @Delete
     suspend fun delete(safetyPin: SafetyPin)
 

@@ -11,5 +11,6 @@ enum class IncidentType(
     SUSPICIOUS_ACTIVITY("Suspicious Activity", SeverityLevel.YELLOW),
     POOR_LIGHTING("Poor Lighting", SeverityLevel.YELLOW),
     UNEVEN_ROAD("Uneven Road", SeverityLevel.YELLOW),
+    WALKABLE_AREA("Walkable Area", SeverityLevel.GREEN),
     OTHER("Other", SeverityLevel.YELLOW)
 }

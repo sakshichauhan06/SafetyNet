@@ -55,6 +55,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.safetynet.R
 import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.ui.MapViewModel
@@ -193,6 +194,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
             onDismiss = { mapViewModel.dismissDialog() },
             onSubmit = { incidentType, details ->
                 val newPin = SafetyPin(
+                    id = java.util.UUID.randomUUID().toString(),
                     latitude = tappedLocation!!.latitude,
                     longitude = tappedLocation!!.longitude,
                     incidentType = incidentType,

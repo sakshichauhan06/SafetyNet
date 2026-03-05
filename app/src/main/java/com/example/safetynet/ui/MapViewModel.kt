@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -30,6 +31,7 @@ import javax.inject.Inject
  * It holds and updates the following states:
  * 1. userLocation: LatLng? (user's location)
  * 2. safetyPins: List<SafetyPin> (state for all saved pins)
+ * 3. showDialog: Boolean
  * 3. showDialog: Boolean
  * 4. tappedLocation: LatLng?
  * 5. errorMessage: String?
@@ -43,11 +45,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor (
+    private val repository: SafetyPinRepository,
     private val locationRepository: LocationRepository,
     private val getAllPinsUseCase: GetAllPinsUseCase,
     private val savePinUseCase: SavePinUseCase,
     private val deletePinUseCase: DeletePinUseCase
 ): ViewModel() {
+
+    init {
+        repository.startFirebaseSync()
+    }
 
     // ----------------- UI States ------------
     // state to hold the user's location as LatLng
@@ -64,7 +71,8 @@ class MapViewModel @Inject constructor (
     @OptIn(ExperimentalCoroutinesApi::class)
     val safetyPins: StateFlow<List<SafetyPin>> = snapshotFlow { _userLocation.value }
         .flatMapLatest { location ->
-            getAllPinsUseCase(location)
+            if(location == null) flowOf(emptyList())
+            else getAllPinsUseCase(location)
         }
         .stateIn(
             scope = viewModelScope,
@@ -123,16 +131,22 @@ class MapViewModel @Inject constructor (
     fun savePin(safetyPin: SafetyPin) {
         viewModelScope.launch {
             _isLoading.value = true
-            savePinUseCase(safetyPin)
-                .onSuccess {
-                    dismissDialog()
-                    _isLoading.value = false
-                }
-                .onFailure { exception ->
-                    _errorMessage.value = exception.message ?: "Failed to save pin"
-                    _isLoading.value = false
-                    Timber.e(exception, "Failed to save pin")
-                }
+//            dismissDialog()
+            try {
+                savePinUseCase(safetyPin)
+                    .onSuccess {
+                        dismissDialog()
+                        Timber.d("Pin saved successfully")
+                    }
+                    .onFailure { exception ->
+                        _errorMessage.value = exception.message
+                        Timber.e(exception, "Failed to save save pin")
+                    }
+            } catch (e: Exception) {
+                _errorMessage.value = "An unexpected error occurred"
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 

@@ -46,7 +46,7 @@ fun ViewPinDetailsDialog(
     onDelete: () -> Unit
 ) {
     val noisePainter = painterResource(id = R.drawable.noise_texture)
-    val (topColor, bottomColor) = getSecerityColorGradient(pin.severity)
+    val (topColor, bottomColor) = getSeverityColor(pin.severity)
     BasicAlertDialog (
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -67,9 +67,9 @@ fun ViewPinDetailsDialog(
                     .fillMaxWidth()
                     .background(
                         brush = Brush.verticalGradient(
-                            0.0f to topColor,
-                            0.25f to bottomColor,
-                            0.25f to MaterialTheme.colorScheme.surface,
+                            0.0f to getSeverityColor(pin.severity),
+                            0.26f to getSeverityColor(pin.severity),
+                            0.26f to MaterialTheme.colorScheme.surface,
                             1f to MaterialTheme.colorScheme.surface
                         )
                     )
@@ -85,7 +85,9 @@ fun ViewPinDetailsDialog(
                         text = pin.shortDescription,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                        color = Color.Black,
+                        color = if(pin.severity == SeverityLevel.RED || pin.severity == SeverityLevel.ORANGE)
+                            Color.White else Color.Black,
                         modifier = Modifier.padding(top = 8.dp)
                     )
 
@@ -146,7 +148,11 @@ fun ViewPinDetailsDialog(
                             shape = RoundedCornerShape(12.dp),
                             border = BorderStroke(2.dp, Color(0xFF0A0A1C))
                         ) {
-                            Text("Cancel", color = Color(0xFF0A0A1C), style = MaterialTheme.typography.labelMedium)
+                            Text(
+                                text = "Cancel",
+                                color = Color(0xFF0A0A1C),
+                                style = MaterialTheme.typography.labelMedium
+                            )
                         }
 
                         // Delete button
@@ -168,10 +174,10 @@ fun ViewPinDetailsDialog(
 
 private fun getSeverityColor(severity: SeverityLevel): Color {
     return when(severity) {
-        SeverityLevel.RED -> Color(0xFFEB2A34)
-        SeverityLevel.ORANGE -> Color(0xFFE67E22)
-        SeverityLevel.YELLOW -> Color(0xFFF1C40F)
-        SeverityLevel.GREEN -> Color(0xFF2ECC71)
+        SeverityLevel.RED -> Color(0xFFFF0003)
+        SeverityLevel.ORANGE -> Color(0xFFFF5D00)
+        SeverityLevel.YELLOW -> Color(0xFFFFE733)
+        SeverityLevel.GREEN -> Color(0xFF00FF54)
     }
 }
 

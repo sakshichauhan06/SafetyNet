@@ -23,21 +23,26 @@ class SafetyPinRepository @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
 
+//    The UI should listen to this. It updates the moment
+//    EITHER a local save happens OR a Firebase sync happens.
+    fun getPinsFromRoom(): Flow<List<SafetyPin>> {
+        return safetyPinDao.getAllPins()
+    }
     suspend fun savePin(safetyPin: SafetyPin): Result<Unit> {
         return try {
             // prepare the Firestore document
             val collection = firestore.collection("incidents")
             val documentRef = if(safetyPin.id.isEmpty()) collection.document()
-            else collection.document(safetyPin.id)
+                            else collection.document(safetyPin.id)
 
             // create the final object with the correct ID
             val finalPin = safetyPin.copy(id = documentRef.id)
 
-            // save to Firestore (Cloud)
-            documentRef.set(finalPin).await()
-
             // save to Room (Local)
             safetyPinDao.insert(finalPin)
+
+            // save to Firestore (Cloud)
+            documentRef.set(finalPin)
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -45,20 +50,27 @@ class SafetyPinRepository @Inject constructor(
         }
     }
 
-    /**
-     * Retrieves all safety pins from the local database.
-     *
-     * @return Result.success with list of all pins, or empty list if none exist
-     */
-    // Update getAllPinsFromCloud to fetch from Cloud or Local
-    suspend fun getAllPinsFromCloud(): Result<List<SafetyPin>> {
-        return try {
-            val snapshot = firestore.collection("incidents").get().await()
-            val pins = snapshot.toObjects(SafetyPin::class.java)
-            Result.success(pins)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+//    Modify your listener to focus ONLY on syncing.
+    // It doesn't need to 'trySend' to the UI anymore because Room handles that.
+    fun startFirebaseSync() {
+        firestore.collection("incidents")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+
+                snapshot?.let { querySnapshot ->
+                    val pins = querySnapshot.toObjects(SafetyPin::class.java)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        pins.forEach { pin ->
+                            safetyPinDao.insert(pin)
+                        }
+                    }
+                }
+            }
+    }
+    suspend fun getAllPinsLocally(): List<SafetyPin> {
+        return safetyPinDao.getAllPinsAsList()
     }
 
     /**

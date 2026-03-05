@@ -1,10 +1,12 @@
 package com.example.safetynet.usecases
 
 import com.example.safetynet.data.SafetyPin
+import com.example.safetynet.data.SafetyPinDao
 import com.example.safetynet.data.SafetyPinRepository
 import com.google.android.gms.maps.model.LatLng
 import com.example.safetynet.utils.AppConstants
 import com.example.safetynet.utils.LocationUtils
+import kotlinx.coroutines.flow.forEach
 import javax.inject.Inject
 
 /**
@@ -21,35 +23,19 @@ import javax.inject.Inject
 class SavePinUseCase @Inject constructor(
     private val repository: SafetyPinRepository
 ) {
-
-
     suspend operator fun invoke(safetyPin: SafetyPin): Result<Unit> {
+        val existingPins = repository.getAllPinsLocally()
 
-        // get all the existing pins
-        val existingPinsResult = repository.getAllPinsFromCloud()
-
-        // handle if getting pins fails
-        if (existingPinsResult.isFailure) {
-            return Result.failure(existingPinsResult.exceptionOrNull()!!)
-        }
-
-        // get the list of pins
-        val existingPins = existingPinsResult.getOrNull() ?: emptyList()
-
-        // check each existing pin's distance
         existingPins.forEach { existingPin ->
             val distance = LocationUtils.calculateDistance(
                 LatLng(existingPin.latitude, existingPin.longitude),
                 LatLng(safetyPin.latitude, safetyPin.longitude)
             )
-
             if (distance < AppConstants.DUPLICATE_DETECTION_RADIUS_METERS) {
-                // duplicate found!! return error
-                return Result.failure(Exception("Pin already exists within ${AppConstants.DUPLICATE_DETECTION_RADIUS_METERS}"))
+                return Result.failure(Exception("Pin already exists nearby"))
             }
         }
 
-        // duplicate checking
         return repository.savePin(safetyPin)
     }
 
