@@ -98,6 +98,9 @@ class MapViewModel @Inject constructor (
     private val _selectedPin = mutableStateOf<SafetyPin?>(null)
     val selectedPin: State<SafetyPin?> = _selectedPin
 
+    private val _showDeleteConfirmation = mutableStateOf(false)
+    val showDeleteConfirmation: State<Boolean> = _showDeleteConfirmation
+
 
     // -------------------------- Actions -----------------------
     /**
@@ -151,6 +154,22 @@ class MapViewModel @Inject constructor (
     }
 
     // Deletes specific selected SafetyPin & reloads the pins list
+
+    fun onDeleteClicked() {
+        _showDeleteConfirmation.value = true
+    }
+
+    fun dismissDeleteConfirmation() {
+        _showDeleteConfirmation.value = false
+    }
+
+    fun confirmDelete() {
+        val pin = selectedPin.value
+        if (pin != null) {
+            deletePin(pin)
+            _showDeleteConfirmation.value = false
+        }
+    }
     fun deletePin(pin: SafetyPin) {
         viewModelScope.launch {
             deletePinUseCase(pin.id)

@@ -105,6 +105,8 @@ fun MapScreen(mapViewModel: MapViewModel) {
 
     var hasInitiallyCentered by remember { mutableStateOf(false) }
 
+    val showDeleteConfirmation by mapViewModel.showDeleteConfirmation
+
 
     val mapProperties = remember {
         MapProperties(
@@ -183,7 +185,38 @@ fun MapScreen(mapViewModel: MapViewModel) {
             pin = pin,
             onDismiss = { mapViewModel.onPinDetailsDialogDismiss() },
             onDelete = {
-                mapViewModel.deletePin(pin)
+                mapViewModel.onDeleteClicked()
+            }
+        )
+    }
+
+    // Delete Confirmation Dialog
+    if(showDeleteConfirmation) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { mapViewModel.dismissDeleteConfirmation() },
+            title = {
+                Text(
+                    text = "Delete Incident?"
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to remove this incident? This action cannot be undone"
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { mapViewModel.confirmDelete() }
+                ) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { mapViewModel.dismissDeleteConfirmation() }
+                ) {
+                    Text("Cancel")
+                }
             }
         )
     }
@@ -208,6 +241,8 @@ fun MapScreen(mapViewModel: MapViewModel) {
             }
         )
     }
+
+
 
     if (permissionDenied) {
        // show permission required screen
