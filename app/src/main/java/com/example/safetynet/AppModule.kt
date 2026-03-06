@@ -5,6 +5,7 @@ import com.example.safetynet.data.auth.AuthRepository
 import com.example.safetynet.data.auth.AuthRepositoryImpl
 import android.content.Context
 import com.example.safetynet.data.SafetyPinDao
+import com.example.safetynet.data.UserDao
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.Firebase
@@ -47,6 +48,11 @@ object AppModule {
     @Provides
     fun provideSafetyPinDao(database: SafetyPinDatabase) : SafetyPinDao {
         return database.safetyPinDao()
+    }
+
+    @Provides
+    fun provideUserDao(database: SafetyPinDatabase): UserDao {
+        return database.userDao()
     }
 
     // Location providers

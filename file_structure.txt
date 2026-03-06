@@ -1,0 +1,61 @@
+com.example.safetynet
+|
+|--data
+|	|--auth
+|	|	|--AuthModule
+|	|	|--AuthRepository
+|	|	|--AuthRepositorylmpl
+|	|--Location Repository
+|	|--SafetyPin
+|	|--SafetyPinDao
+|	|--SafetyPinDatabase.kt
+|	|--SafetyPinRepository
+|
+|--domain
+|	|--IncidentType
+|	|--NavigationDestination.kt
+|	|--SeverityLevel
+|
+|--security
+|
+|--ui
+|	|--auth
+|	|	|--AuthState
+|	|	|--AuthViewModel
+|	|	|--LoginScreen.kt
+|	|	|--SignupScreen.kt
+|	|--components
+|	|	|--EmptySafetyPinState.kt
+|	|	|--PinDetailsDialog.kt
+|	|	ViewPinDetailsDialog.kt
+|	|--theme
+|	|	|--Color.kt
+|	|	|--Theme.kt
+|	|	|--Type.kt
+|	|--IncidentsScreen.kt
+|	|--MainScreen.kt
+|	|--MapScreen.kt
+|	|--MapViewModel
+|	|--NavigationItem
+|	|--ProfileScreen.kt
+|	|--ReportIncidentDialog.kt
+|
+|--usecases
+|	|--DeletePinUseCase
+|	|--GetAllPinsUseCase
+|	|--GetUserLocationUseCase
+|	|--SavePinUseCase
+|
+|--utils
+|	|--Constants.kt
+|	|--Location Utils
+|	|--Resource
+|	|--TimeUtils
+|
+|--AppModule
+|
+|--MainActivity
+|
+|--SafetyNetApp
+|
+|--SplashScreen.kt

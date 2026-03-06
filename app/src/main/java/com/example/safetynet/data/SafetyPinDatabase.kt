@@ -11,11 +11,16 @@ import com.example.safetynet.domain.SeverityLevel
 import com.example.safetynet.utils.AppConstants
 
 
-@Database(entities = [SafetyPin::class], version = AppConstants.DATABASE_VERSION, exportSchema = true)
+@Database(
+    entities = [SafetyPin::class, User::class],
+    version = AppConstants.DATABASE_VERSION,
+    exportSchema = false
+)
 @TypeConverters(Converters::class)
 abstract class SafetyPinDatabase : RoomDatabase() {
 
     abstract fun safetyPinDao(): SafetyPinDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile

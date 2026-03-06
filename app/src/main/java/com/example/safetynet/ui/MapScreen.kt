@@ -77,6 +77,8 @@ import com.google.maps.android.compose.rememberMarkerState
 import com.example.safetynet.domain.SeverityLevel
 import timber.log.Timber
 import com.example.safetynet.utils.AppConstants
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 
@@ -106,6 +108,9 @@ fun MapScreen(mapViewModel: MapViewModel) {
     var hasInitiallyCentered by remember { mutableStateOf(false) }
 
     val showDeleteConfirmation by mapViewModel.showDeleteConfirmation
+
+    val auth = Firebase.auth
+    val currentUserId = auth.currentUser?.uid ?: "anonymous_user"
 
 
     val mapProperties = remember {
@@ -235,7 +240,8 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     shortDescription = incidentType.displayName,
                     detailedDescription = details.ifEmpty { "No Additional details" },
                     timestamp = System.currentTimeMillis(),
-                    isAnonymous = true
+                    isAnonymous = true,
+                    userId = currentUserId
                 )
                 mapViewModel.savePin(newPin)
             }

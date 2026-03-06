@@ -14,6 +14,8 @@ import timber.log.Timber
 import com.example.safetynet.usecases.DeletePinUseCase
 import com.example.safetynet.usecases.GetAllPinsUseCase
 import com.example.safetynet.usecases.SavePinUseCase
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -101,7 +103,8 @@ class MapViewModel @Inject constructor (
     private val _showDeleteConfirmation = mutableStateOf(false)
     val showDeleteConfirmation: State<Boolean> = _showDeleteConfirmation
 
-
+    private val currentUserId: String
+        get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     // -------------------------- Actions -----------------------
     /**
      * Fetches the user's current location and loads nearby safety pins.
@@ -132,11 +135,14 @@ class MapViewModel @Inject constructor (
      * @param safetyPin The pin to save
      */
     fun savePin(safetyPin: SafetyPin) {
+        // Attatch the real User ID before saving
+        val pinWithUser = safetyPin.copy(userId = currentUserId)
+
         viewModelScope.launch {
             _isLoading.value = true
 //            dismissDialog()
             try {
-                savePinUseCase(safetyPin)
+                savePinUseCase(pinWithUser)
                     .onSuccess {
                         dismissDialog()
                         Timber.d("Pin saved successfully")
