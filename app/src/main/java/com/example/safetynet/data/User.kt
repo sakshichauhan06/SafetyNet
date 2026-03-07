@@ -11,5 +11,6 @@ data class User (
     val email: String = "",
     val profilePictureUrl: String? = null,
     val emergencyContact: String = "",
+    val emergencyContactName: String = "",
     val createdAt: Long = System.currentTimeMillis()
 )

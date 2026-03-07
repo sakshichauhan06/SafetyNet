@@ -39,12 +39,14 @@ fun ManageProfileScreen(
     // Local state for text fields
     var name by remember { mutableStateOf("") }
     var emergencyContact by remember { mutableStateOf("") }
+    var emergencyContactName by remember { mutableStateOf("") }
 
     // Load existing data into fieds once user is loaded
     LaunchedEffect(user) {
         user?.let {
             name = it.name
             emergencyContact = it.emergencyContact
+            emergencyContactName = it.emergencyContactName
         }
     }
 
@@ -71,6 +73,15 @@ fun ManageProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
+            value = emergencyContactName,
+            onValueChange = { emergencyContactName = it },
+            label = { Text("Emergency Contact Person Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
             value = emergencyContact,
             onValueChange = { emergencyContact = it },
             label = { Text("Emergency Contact Number") },
@@ -82,7 +93,7 @@ fun ManageProfileScreen(
 
         Button(
             onClick = {
-                viewModel.updateUserProfile(name, emergencyContact)
+                viewModel.updateUserProfile(name, emergencyContact, emergencyContactName)
                 navController.popBackStack()
             },
             modifier = Modifier.fillMaxWidth().height(50.dp)
