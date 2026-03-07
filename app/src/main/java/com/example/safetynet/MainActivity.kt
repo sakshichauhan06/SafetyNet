@@ -13,6 +13,7 @@ import com.example.safetynet.data.SafetyPinDatabase
 import com.example.safetynet.data.SafetyPinRepository
 import com.example.safetynet.ui.MainScreen
 import com.example.safetynet.ui.MapViewModel
+import com.example.safetynet.ui.auth.AuthState
 import com.example.safetynet.ui.auth.AuthViewModel
 import com.example.safetynet.ui.theme.SafetyNetTheme
 import com.google.android.gms.location.LocationServices
@@ -32,6 +33,10 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        splashScreen.setKeepOnScreenCondition {
+            authViewModel.authState.value is AuthState.Loading
+        }
 
         setContent {
             SafetyNetTheme {

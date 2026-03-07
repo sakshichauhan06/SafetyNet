@@ -11,6 +11,7 @@ sealed class NavigationItem(
     val title: String,
     val icon: ImageVector? = null
 ) {
+    object Splash : NavigationItem("splash", "Splash")
     // Auth Screens (No icons needed here)
     object Login : NavigationItem("login", "Login")
     object Signup : NavigationItem("signup", "Signup")

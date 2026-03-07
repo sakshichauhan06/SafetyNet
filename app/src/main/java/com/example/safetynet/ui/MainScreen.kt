@@ -56,9 +56,12 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = NavigationItem.Login.route,
+            startDestination = "splash",
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable("splash") {
+                SplashScreen(navController, authViewModel)
+            }
             composable(NavigationItem.Login.route) {
                 LoginScreen(authViewModel, navController)
             }
