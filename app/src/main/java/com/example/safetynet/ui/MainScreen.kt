@@ -77,6 +77,9 @@ fun MainScreen(
             composable(NavigationItem.Profile.route) {
                 ProfileScreen(authViewModel, navController)
             }
+            composable(NavigationItem.ManageProfile.route) {
+                ManageProfileScreen(navController)
+            }
         }
     }
 }
