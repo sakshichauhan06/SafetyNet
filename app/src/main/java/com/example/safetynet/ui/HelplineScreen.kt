@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.core.net.toUri
+import com.example.safetynet.domain.Helpline
 
 @Composable
 fun HelplineScreen(naveController: NavController) {
@@ -110,4 +111,3 @@ fun HelplineCard(helpline: Helpline, onCallClick: () -> Unit) {
         }
     }
 }
-data class Helpline(val name: String, val number: String)

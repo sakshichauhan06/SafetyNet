@@ -29,6 +29,8 @@ sealed class NavigationItem(
 
     object ReportBug : NavigationItem("report_bug", "Report Bug")
 
+    object FAQ: NavigationItem("faq", "FAQ")
+
     // Helper list for the Bottom Bar to loop through
     companion object {
         val bottomBarItems = listOf(Incidents, Map, Profile)
