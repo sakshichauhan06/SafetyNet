@@ -22,6 +22,10 @@ sealed class NavigationItem(
     object Profile : NavigationItem("profile", "Profile", Icons.Filled.Person)
 
     object ManageProfile : NavigationItem("manage_profile", "Manage Profile")
+
+    object Helpline : NavigationItem("helpline", "Helpline")
+
+    object SOS : NavigationItem("sos", "SOS")
     // Helper list for the Bottom Bar to loop through
     companion object {
         val bottomBarItems = listOf(Incidents, Map, Profile)

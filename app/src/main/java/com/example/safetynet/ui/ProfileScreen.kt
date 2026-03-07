@@ -110,8 +110,10 @@ fun ProfileScreen(
         Column(modifier = Modifier.fillMaxWidth()) {
             menuOptions.forEach { option ->
                 ProfileMenuItem(title = option) {
-                    if (option == "Manage Profile") {
-                        navController.navigate("manage_profile")
+                    when(option) {
+                        "Manage Profile" -> navController.navigate(NavigationItem.ManageProfile.route)
+                        "SOS" -> navController.navigate(NavigationItem.SOS.route)
+                        "Helpline numbers" -> navController.navigate(NavigationItem.Helpline.route)
                     }
                 }
             }

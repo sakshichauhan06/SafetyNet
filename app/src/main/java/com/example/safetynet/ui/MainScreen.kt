@@ -80,6 +80,12 @@ fun MainScreen(
             composable(NavigationItem.ManageProfile.route) {
                 ManageProfileScreen(navController)
             }
+            composable(NavigationItem.Helpline.route) {
+                HelplineScreen(navController)
+            }
+            composable(NavigationItem.SOS.route) {
+                SOSScreen()
+            }
         }
     }
 }

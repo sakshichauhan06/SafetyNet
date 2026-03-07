@@ -7,6 +7,7 @@ import com.example.safetynet.data.UserDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,25 +42,37 @@ class ProfileViewModel @Inject constructor(
 
     fun updateUserProfile(newName: String, newContact: String) {
         val currentUid = firebaseAuth.currentUser?.uid ?: return
+        val currentEmail = firebaseAuth.currentUser?.email ?: ""
 
-        viewModelScope.launch {
-            // Update ROOM
-            val updatedUser = User(
-                uid = currentUid,
-                name = newName,
-                email = firebaseAuth.currentUser?.email ?: "",
-                emergencyContact = newContact
-            )
-            userDao.insertUser(updatedUser)
+        try {
+            viewModelScope.launch {
+                // Update ROOM
+                val updatedUser = User(
+                    uid = currentUid,
+                    name = newName,
+                    email = currentEmail,
+                    emergencyContact = newContact
+                )
+                userDao.insertUser(updatedUser)
 
-            // Update Firestore
-            FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(currentUid)
-                .update(mapOf(
-                    "name" to newName,
-                    "emergencyContact" to newContact
-                ))
+                // Update Firestore
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(currentUid)
+                    .set(updatedUser, SetOptions.merge()) // Merge instead of overwriting everything
+                    .await()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun triggerSOS(currentUserLocation: String) {
+        val user = currentUser.value
+        val contact = user?.emergencyContact
+
+        if (!contact.isNullOrBlank()) {
+
         }
     }
 
