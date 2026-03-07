@@ -86,6 +86,9 @@ fun MainScreen(
             composable(NavigationItem.SOS.route) {
                 SOSScreen()
             }
+            composable(NavigationItem.ReportBug.route) {
+                ReportBugScreen(navController)
+            }
         }
     }
 }

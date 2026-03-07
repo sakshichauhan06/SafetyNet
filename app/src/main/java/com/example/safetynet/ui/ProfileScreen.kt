@@ -114,6 +114,7 @@ fun ProfileScreen(
                         "Manage Profile" -> navController.navigate(NavigationItem.ManageProfile.route)
                         "SOS" -> navController.navigate(NavigationItem.SOS.route)
                         "Helpline numbers" -> navController.navigate(NavigationItem.Helpline.route)
+                        "Report a bug" -> navController.navigate(NavigationItem.ReportBug.route)
                     }
                 }
             }
