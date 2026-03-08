@@ -1,7 +1,16 @@
 package com.example.safetynet.data
 
+import android.annotation.SuppressLint
+import com.google.android.gms.location.LocationRequest
+import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -35,6 +44,35 @@ class LocationRepository @Inject constructor(
             } catch (e: SecurityException) {
                 continuation.resume(Result.failure(e))
             }
+        }
+    }
+
+    @SuppressLint("MissingPermission") // To handle permissions in UI layer
+    fun getLocationUpdates(): Flow<LatLng> = callbackFlow {
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            10000L // Check every 10 seconds (good balance for batter)
+        ).setMinUpdateDistanceMeters(20f) // Only trigger if they move 20 meters
+            .build()
+
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                for (location in result.locations) {
+                    trySend(LatLng(location.latitude, location.longitude))
+                }
+            }
+        }
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+
+        // If the app closes or ViewModel is cleared, this block
+        // stops the GPS to save user's battery
+        awaitClose {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
         }
     }
 

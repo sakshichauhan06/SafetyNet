@@ -23,6 +23,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -59,6 +60,7 @@ class MapViewModel @Inject constructor (
 
     init {
         repository.startFirebaseSync()
+        observeLocationStream()
     }
 
     // ----------------- UI States ------------
@@ -109,7 +111,24 @@ class MapViewModel @Inject constructor (
     private val alertedPinIds = mutableSetOf<String>()
     private val currentUserId: String
         get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
     // -------------------------- Actions -----------------------
+    private fun observeLocationStream() {
+        viewModelScope.launch {
+            try {
+                // collects form the callbackFlow we built in repository
+                locationRepository.getLocationUpdates().collect() { latLng ->
+                    _userLocation.value = latLng
+                    checkProximityToDanger(latLng.latitude, latLng.longitude)
+                    Timber.d("Automatic Update: ${latLng.latitude}, ${latLng.longitude}")
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error in location stream")
+            }
+        }
+    }
+
+
     /**
      * Fetches the user's current location and loads nearby safety pins.
      *
