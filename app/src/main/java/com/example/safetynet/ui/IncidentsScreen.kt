@@ -43,7 +43,7 @@ import com.example.safetynet.domain.SeverityLevel
 @Composable
 fun IncidentsScreen(mapViewModel: MapViewModel) {
 
-    // ---------- To see if notification alerts are working or not---------
+    // ----------  Tester button to see if notification alerts are working or not---------
 //    val context = LocalContext.current
 //    val notificationHelper = remember { com.example.safetynet.utils.NotificationHelper(context) }
 //
