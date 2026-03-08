@@ -6,6 +6,7 @@ import com.example.safetynet.data.auth.AuthRepositoryImpl
 import android.content.Context
 import com.example.safetynet.data.SafetyPinDao
 import com.example.safetynet.data.UserDao
+import com.example.safetynet.utils.NotificationHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.Firebase
@@ -60,6 +61,12 @@ object AppModule {
     @Singleton
     fun provideFusedLocationProviderClient(@ApplicationContext context: Context) : FusedLocationProviderClient {
         return LocationServices.getFusedLocationProviderClient(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationHelper(@ApplicationContext context: Context): NotificationHelper {
+        return NotificationHelper(context)
     }
 
 //

@@ -8,12 +8,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.safetynet.data.LocationRepository
 import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.data.SafetyPinRepository
+import com.example.safetynet.domain.SeverityLevel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import com.example.safetynet.usecases.DeletePinUseCase
 import com.example.safetynet.usecases.GetAllPinsUseCase
 import com.example.safetynet.usecases.SavePinUseCase
+import com.example.safetynet.utils.NotificationHelper
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,7 +53,8 @@ class MapViewModel @Inject constructor (
     private val locationRepository: LocationRepository,
     private val getAllPinsUseCase: GetAllPinsUseCase,
     private val savePinUseCase: SavePinUseCase,
-    private val deletePinUseCase: DeletePinUseCase
+    private val deletePinUseCase: DeletePinUseCase,
+    private val notificationHelper: NotificationHelper
 ): ViewModel() {
 
     init {
@@ -103,6 +106,7 @@ class MapViewModel @Inject constructor (
     private val _showDeleteConfirmation = mutableStateOf(false)
     val showDeleteConfirmation: State<Boolean> = _showDeleteConfirmation
 
+    private val alertedPinIds = mutableSetOf<String>()
     private val currentUserId: String
         get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     // -------------------------- Actions -----------------------
@@ -118,6 +122,9 @@ class MapViewModel @Inject constructor (
                 .onSuccess { latLng ->
                     _userLocation.value = latLng
                     _isLoading.value = false
+
+                    // Trigger the Check whenever location is updated
+                    checkProximityToDanger(latLng.latitude, latLng.longitude)
                 }
                 .onFailure { exception ->
                     _isLoading.value = false
@@ -187,6 +194,37 @@ class MapViewModel @Inject constructor (
                     _errorMessage.value = "Failed to delete pin: ${exception.message}"
                     Timber.e(exception, "Failed to delete pin")
                 }
+        }
+    }
+
+    // ------------ Critical Incidents Notifications -----------
+    private fun checkProximityToDanger(userLat: Double, userLong: Double) {
+        val criticalPins = safetyPins.value.filter { it.severity == SeverityLevel.RED }
+
+        for (pin in criticalPins) {
+            val results = FloatArray(1)
+
+            // Use android's built-in distance calculator
+            android.location.Location.distanceBetween(
+                userLat, userLong,
+                pin.latitude, pin.longitude,
+                results
+            )
+
+            val distanceInMeters = results[0]
+
+            if (distanceInMeters < 300 && !alertedPinIds.contains(pin.id)) {
+                notificationHelper.sendHighRiskAlert(
+                    "⚠️ CRITICAL INCIDENT NEARBY",
+                    "You are near: ${pin.shortDescription}. Stay alert!"
+                )
+                alertedPinIds.add(pin.id)
+            }
+
+                // If the user moves far away (> 1 km), remove it from set
+            else if (distanceInMeters > 1000) {
+                alertedPinIds.remove(pin.id)
+            }
         }
     }
 
