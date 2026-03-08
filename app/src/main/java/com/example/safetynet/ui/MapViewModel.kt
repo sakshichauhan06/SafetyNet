@@ -198,10 +198,13 @@ class MapViewModel @Inject constructor (
     }
 
     // ------------ Critical Incidents Notifications -----------
-    private fun checkProximityToDanger(userLat: Double, userLong: Double) {
-        val criticalPins = safetyPins.value.filter { it.severity == SeverityLevel.RED }
 
-        for (pin in criticalPins) {
+    private fun checkProximityToDanger(userLat: Double, userLong: Double) {
+        val dangerPins = safetyPins.value.filter {
+            it.severity == SeverityLevel.RED || it.severity == SeverityLevel.ORANGE
+        }
+
+        for (pin in dangerPins) {
             val results = FloatArray(1)
 
             // Use android's built-in distance calculator
@@ -213,16 +216,21 @@ class MapViewModel @Inject constructor (
 
             val distanceInMeters = results[0]
 
-            if (distanceInMeters < 300 && !alertedPinIds.contains(pin.id)) {
-                notificationHelper.sendHighRiskAlert(
-                    "⚠️ CRITICAL INCIDENT NEARBY",
-                    "You are near: ${pin.shortDescription}. Stay alert!"
-                )
-                alertedPinIds.add(pin.id)
-            }
+            // Only alert if within 1 km and not already alerted
+            if (distanceInMeters <= 1000 && !alertedPinIds.contains(pin.id)) {
+                val alertHeader = if (pin.severity == SeverityLevel.RED) {
+                    "⚠️ CRITICAL INCIDENT"
+                } else {
+                    "🔸 HIGH RISK AREA"
+                }
 
-                // If the user moves far away (> 1 km), remove it from set
-            else if (distanceInMeters > 1000) {
+                notificationHelper.sendHighRiskAlert(
+                    alertHeader,
+                    "Nearby: ${pin.shortDescription}. Stay alert!"
+                )
+
+                alertedPinIds.add(pin.id)
+            } else if (distanceInMeters > 1000) { // Rest if they move away (> 1km)
                 alertedPinIds.remove(pin.id)
             }
         }
