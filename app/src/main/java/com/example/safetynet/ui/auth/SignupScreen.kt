@@ -1,18 +1,25 @@
 package com.example.safetynet.ui.auth
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -20,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +58,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import timber.log.Timber
 
 @Composable
 fun SignupScreen(
@@ -57,6 +69,7 @@ fun SignupScreen(
     navController: NavController
 ) {
 
+    // ----------------- State Management ------------------
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -67,6 +80,31 @@ fun SignupScreen(
 
     var isPasswordVisible by remember { mutableStateOf(false) }
 
+    // ------------------- Google Sign-in Launcher ---------------
+    val gso = remember {
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("804915311997-cnsoqp0n90hqvutm8jt58i85dvr68is4.apps.googleusercontent.com")
+            .requestEmail()
+            .build()
+    }
+
+    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
+
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            account.idToken?.let { token ->
+                authViewModel.signInWithGoogle(token)
+            }
+        } catch (e: ApiException) {
+            Timber.e("Google sign in failed: ${e.statusCode}")
+        }
+    }
+
+    // ---------------- Navigation and Error Handling
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Authenticated -> {
@@ -80,209 +118,158 @@ fun SignupScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Sign Up",
-            style = MaterialTheme.typography.headlineLarge
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        TextButton(onClick = {
-            navController.navigate("login")
-        }) {
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = Color.Gray, fontWeight = FontWeight.Normal)) {
-                        append("Already Have An Account?")
-                    }
-                    withStyle(
-                        style = SpanStyle(
-                            color = Color.Blue,
-                            fontWeight = FontWeight.Bold
-                        ),) {
-                        append(" Login")
-                    }
-                },
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-            },
-            label = {
-                Text(
-                    text = "Email Address",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
-            },
-            textStyle = TextStyle(
-                fontSize = 16.sp,
-                color = Color.Black,
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-            },
-            label = {
-                Text(
-                    text = "Enter your Password",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val image = if (isPasswordVisible)
-                    Icons.Filled.Visibility
-                else
-                    Icons.Filled.VisibilityOff
-
-                val description = if (isPasswordVisible)
-                    "Hide Password"
-                else
-                    "Show Password"
-
-                IconButton(onClick = {isPasswordVisible = !isPasswordVisible}) {
-                    Icon(imageVector = image, contentDescription = description)
-                }
-            },
-            textStyle = TextStyle(
-                fontSize = 16.sp,
-                color = Color.Black,
-            )
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row (
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Checkbox(
-                    checked = isChecked.value,
-                    onCheckedChange = { isChecked.value = it },
-//                    modifier = Modifier.padding(8.dp),
-                    enabled = true,
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = Color.Blue,
-                        uncheckedColor = Color.DarkGray,
-                        checkmarkColor = Color.White
-                    ),
-                    interactionSource = remember { MutableInteractionSource() }
-                )
-                Text(
-                    text = if (authState == AuthState.Loading) "Loading..." else "Remember me",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
-            }
-
-            TextButton(
-                onClick = { /*TODO*/ }
-            ) {
-                Text(
-                    text = "Forgot Password?",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.Blue
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                authViewModel.signup(email, password)
-            },
-            enabled = authState != AuthState.Loading,
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .width(300.dp),
-            shape = RoundedCornerShape(12.dp),
-            contentPadding = PaddingValues(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                .fillMaxSize()
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Sign Up",
-                color = Color.White,
-                style = MaterialTheme.typography.labelMedium,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.headlineLarge
             )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
-            text = "Or Continue with",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .width(400.dp)
-        ) {
-            Button(
-                onClick = {  },
-                modifier = Modifier
-                    .padding(16.dp)
-                    .width(148.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = true,
-                contentPadding = PaddingValues(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
-            ) {
+            TextButton(onClick = {
+                navController.navigate("login")
+            }) {
                 Text(
-                    text = "Google",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleSmall,
-                    textAlign = TextAlign.Center
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = Color.Gray, fontWeight = FontWeight.Normal)) {
+                            append("Already Have An Account?")
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                color = Color.Blue,
+                                fontWeight = FontWeight.Bold
+                            ),) {
+                            append(" Login")
+                        }
+                    },
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Email field
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = {
+                    Text(
+                        text = "Email Address",
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                },
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Password field
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = {
+                    Text(
+                        text = "Enter your Password",
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (isPasswordVisible)
+                        Icons.Filled.Visibility
+                    else
+                        Icons.Filled.VisibilityOff
+
+                    val description = if (isPasswordVisible)
+                        "Hide Password"
+                    else
+                        "Show Password"
+
+                    IconButton(onClick = {isPasswordVisible = !isPasswordVisible}) {
+                        Icon(imageVector = image, contentDescription = description)
+                    }
+                },
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Signup button
             Button(
-                onClick = {  },
-                modifier = Modifier
-                    .padding(16.dp)
-                    .width(148.dp),
+                onClick = {
+                    authViewModel.signup(email, password)
+                },
+                enabled = authState!= AuthState.Loading,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = true,
-                contentPadding = PaddingValues(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
             ) {
                 Text(
-                    text = "Facebook",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleSmall,
-                    textAlign = TextAlign.Center
+                    text = "Sign Up",
+                    color = Color.White
                 )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Or Continue with",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Google and Phone auth
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = { googleLauncher.launch(googleSignInClient.signInIntent) },
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
+                ) {
+                    Text("Google", color = Color.White)
+                }
+
+                Button(
+                    onClick = { navController.navigate("phone_login") },
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
+                ) {
+                    Text("Phone", color = Color.White)
+                }
+            }
+        }
+
+        // Loading Overlay
+        if (authState == AuthState.Loading) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.Blue)
             }
         }
     }
-
 }
 
