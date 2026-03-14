@@ -10,8 +10,6 @@ com.example.safetynet
 |	|--SafetyPinDao
 |	|--SafetyPinDatabase.kt
 |	|--SafetyPinRepository
-|	|--User
-|	|--UserDao
 |
 |--domain
 |	|--IncidentType
@@ -41,7 +39,6 @@ com.example.safetynet
 |	|--NavigationItem
 |	|--ProfileScreen.kt
 |	|--ReportIncidentDialog.kt
-|	|--TrackingPulse.kt
 |
 |--usecases
 |	|--DeletePinUseCase
@@ -52,7 +49,6 @@ com.example.safetynet
 |--utils
 |	|--Constants.kt
 |	|--Location Utils
-|	|--NotificationHelper
 |	|--Resource
 |	|--TimeUtils
 |

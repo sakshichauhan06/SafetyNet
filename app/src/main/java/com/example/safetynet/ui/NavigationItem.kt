@@ -16,6 +16,8 @@ sealed class NavigationItem(
     object Login : NavigationItem("login", "Login")
     object Signup : NavigationItem("signup", "Signup")
 
+    object PhoneLogin : NavigationItem("phone_login", "Phone Login")
+
     // Main Screens (Icons needed)
     object Incidents : NavigationItem("incidents", "Incidents", Icons.Filled.SafetyCheck)
     object Map : NavigationItem("map", "Map", Icons.Filled.Map)

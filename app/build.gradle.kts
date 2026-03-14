@@ -132,6 +132,12 @@ dependencies {
 
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
 
+    // Google Play auth library
+    implementation("com.google.android.gms:play-services-auth:21.5.1")
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.2.0")
+
     // Dagger-Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

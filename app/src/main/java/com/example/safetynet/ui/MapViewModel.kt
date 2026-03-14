@@ -249,7 +249,7 @@ class MapViewModel @Inject constructor (
                 )
 
                 alertedPinIds.add(pin.id)
-            } else if (distanceInMeters > 1000) { // Rest if they move away (> 1km)
+            } else if (distanceInMeters > 1200) { // Rest if they move away (> 1.2km)
                 alertedPinIds.remove(pin.id)
             }
         }

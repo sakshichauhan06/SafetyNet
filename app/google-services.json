@@ -12,7 +12,20 @@
           "package_name": "com.example.safetynet"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "804915311997-m2050utlcmor1l6gref7d5qks67kul09.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.safetynet",
+            "certificate_hash": "aeefac8c66b2159ba6cbb67898bb6f4c0a7b05cb"
+          }
+        },
+        {
+          "client_id": "804915311997-cnsoqp0n90hqvutm8jt58i85dvr68is4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD1BSOFYXf5QdmihpSDPc5PAS_oelyV_DM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804915311997-cnsoqp0n90hqvutm8jt58i85dvr68is4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

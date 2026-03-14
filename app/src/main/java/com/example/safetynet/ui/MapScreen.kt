@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -75,6 +77,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.example.safetynet.domain.SeverityLevel
+import com.example.safetynet.ui.TrackingPulse
 import timber.log.Timber
 import com.example.safetynet.utils.AppConstants
 import com.google.firebase.Firebase
@@ -264,7 +267,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
     } else {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) }
-        ) { paddingValues ->
+        ) { padding ->
             Box(modifier = Modifier.padding(0.dp)) {
                 GoogleMap(
                     modifier = Modifier
@@ -305,6 +308,16 @@ fun MapScreen(mapViewModel: MapViewModel) {
                             )
                         }
                     }
+                }
+
+                // Pulse Icon Overlay
+                Box(
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .padding(16.dp)
+                        .align(Alignment.TopStart)
+                ) {
+                    TrackingPulse(isActive = userLocation != null)
                 }
 
                 if (showEmptyState) {

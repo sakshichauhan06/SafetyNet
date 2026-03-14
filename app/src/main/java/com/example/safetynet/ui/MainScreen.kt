@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 //import androidx.navigation.NavHost // incorrect import
@@ -31,6 +32,8 @@ import com.example.safetynet.SplashScreen
 import com.example.safetynet.domain.Screen
 import com.example.safetynet.ui.auth.AuthViewModel
 import com.example.safetynet.ui.auth.LoginScreen
+import com.example.safetynet.ui.auth.OtpVerifyScreen
+import com.example.safetynet.ui.auth.PhoneLoginScreen
 import com.example.safetynet.ui.auth.SignupScreen
 
 
@@ -67,6 +70,13 @@ fun MainScreen(
             }
             composable(NavigationItem.Signup.route) {
                 SignupScreen(authViewModel, navController)
+            }
+            composable(NavigationItem.PhoneLogin.route) {
+                PhoneLoginScreen(authViewModel, navController)
+            }
+            composable("otp_verify/{verificationId}") { backStackEntry ->
+                val verificationId = backStackEntry.arguments?.getString("verificationId") ?: ""
+                OtpVerifyScreen(authViewModel, navController, verificationId)
             }
             composable(NavigationItem.Incidents.route) {
                 IncidentsScreen(mapViewModel)
