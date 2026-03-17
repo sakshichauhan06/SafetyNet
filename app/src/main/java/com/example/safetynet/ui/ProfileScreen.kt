@@ -1,20 +1,32 @@
 package com.example.safetynet.ui
 
 import android.R.attr.onClick
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,6 +37,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +55,7 @@ fun ProfileScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
 
     val authState = authViewModel.authState.collectAsState()
     val user by profileViewModel.currentUser.collectAsState()
@@ -100,17 +116,17 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(40.dp))
 
         val menuOptions = listOf(
-            "Manage Profile",
-            "SOS",
-            "Helpline numbers",
-            "FAQ",
-            "Report a bug"
+            "Manage Profile" to Icons.Default.Person,
+            "SOS" to Icons.Default.Warning,
+            "Helpline numbers" to Icons.Default.Phone,
+            "FAQ" to Icons.Default.Info,
+            "Report a bug" to Icons.Default.BugReport
         )
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            menuOptions.forEach { option ->
-                ProfileMenuItem(title = option) {
-                    when(option) {
+            menuOptions.forEach { (title, icon) ->
+                ProfileMenuItem(title = title, icon = icon) {
+                    when(title) {
                         "Manage Profile" -> navController.navigate(NavigationItem.ManageProfile.route)
                         "SOS" -> navController.navigate(NavigationItem.SOS.route)
                         "Helpline numbers" -> navController.navigate(NavigationItem.Helpline.route)
@@ -127,7 +143,7 @@ fun ProfileScreen(
         Button(
             onClick = {
                 profileViewModel.logout()
-                authViewModel.signOut()
+                authViewModel.signOut(context)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             modifier = Modifier
@@ -148,16 +164,52 @@ fun ProfileScreen(
 
 
 @Composable
-fun ProfileMenuItem(title: String, onClick: () -> Unit) {
+fun ProfileMenuItem(
+    title: String,
+    icon: ImageVector? = null,
+    onClick: () -> Unit) {
     Surface(
         onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
         color = Color.Transparent
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp)) {
-                Text(text = title, style = MaterialTheme.typography.bodyLarge, color = Color.DarkGray)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (icon != null) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Color(0xFF0A0A1C)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = Color.LightGray,
+                    modifier = Modifier.size(20.dp)
+                )
             }
-            HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray)
+            HorizontalDivider(
+                thickness = 0.5.dp,
+                color = Color.LightGray.copy(alpha = 0.5f)
+            )
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.safetynet.ui.auth
 
 import android.R
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -83,6 +85,9 @@ fun LoginScreen(
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    var showForgotDialog by remember { mutableStateOf(false) }
+    var resetEmail by remember { mutableStateOf("") }
+
     // ------------ Google Sign-in setup ------------
     val gso = remember {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -108,6 +113,39 @@ fun LoginScreen(
             Timber.e("Google sign in failed: ${e.statusCode}")
             Toast.makeText(context, "Google Sign-in Failed", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // ------------ Forgot password flow ------------
+    if (showForgotDialog) {
+        AlertDialog(
+            onDismissRequest = { showForgotDialog = false },
+            title = { Text("Reset Password") },
+            text = {
+                Column {
+                    Text("Enter your email address to receive a rest link.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = resetEmail,
+                        onValueChange = { resetEmail = it },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.resetPassword(resetEmail)
+                    showForgotDialog = false
+                }) {
+                    Text("Send Link")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showForgotDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     // ------------ Navigation & Error handling ------------
@@ -240,7 +278,7 @@ fun LoginScreen(
                 }
 
                 TextButton(
-                    onClick = { /*TODO* Forgot Password*/ }
+                    onClick = { showForgotDialog = true }
                 ) {
                     Text(
                         text = "Forgot Password?",

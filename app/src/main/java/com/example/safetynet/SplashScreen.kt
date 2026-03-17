@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.safetynet.ui.auth.AuthViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @Composable
@@ -36,14 +37,22 @@ fun SplashScreen(navController: NavController, authViewModel: AuthViewModel) {
 
     LaunchedEffect(Unit) {
         isVisible = true
+        delay(2000)
+        val user = FirebaseAuth.getInstance().currentUser
 
-        delay(3000)
+        val destination = when {
+            user == null -> "login"
 
-//        navController.navigate(Screen.Map.route) {
-//            popUpTo("splash") { inclusive = true }
-//        }
+            // if logged in via email/password but NOT verified
+            !user.isEmailVerified && user.providerData.any {
+                it.providerId == "password"
+            } -> "verify_email"
 
-        navController.navigate("login") {
+            // otherwise Google or Phone login or Verified email
+            else -> "map"
+        }
+
+        navController.navigate(destination) {
             popUpTo("splash") { inclusive = true }
         }
     }

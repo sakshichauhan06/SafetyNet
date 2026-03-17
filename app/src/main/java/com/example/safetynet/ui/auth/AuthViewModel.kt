@@ -4,10 +4,13 @@ package com.example.safetynet.ui.auth
 import android.app.Activity
 import android.provider.Telephony
 import androidx.browser.trusted.Token
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.safetynet.data.auth.AuthRepository
 import com.example.safetynet.utils.Resource
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +31,7 @@ class AuthViewModel @Inject constructor(
     private val repository: AuthRepository,
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
+
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
@@ -39,7 +43,12 @@ class AuthViewModel @Inject constructor(
     }
 
     fun checkAuthState() {
-        if(firebaseAuth.currentUser == null) {
+        val user = firebaseAuth.currentUser
+
+        if(user == null) {
+            _authState.value = AuthState.Unauthenticated
+        } else if (!user.isEmailVerified && user.providerData.any {it.providerId == "password" }) {
+            // if they logged in with Email/Password but haven't verified their email
             _authState.value = AuthState.Unauthenticated
         } else {
             _authState.value = AuthState.Authenticated
@@ -133,43 +142,78 @@ class AuthViewModel @Inject constructor(
 
     fun signup(email: String, password: String) {
         val trimmedEmail = email.trim()
+        _authState.value = AuthState.Loading
 
-        if (trimmedEmail.isEmpty() || password.isEmpty()) {
-            _authState.value = AuthState.Error("Fields cannot be empty")
-            return
-        }
+        firebaseAuth.createUserWithEmailAndPassword(trimmedEmail, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Send Verification immediately
+                    firebaseAuth.currentUser?.sendEmailVerification()
+                        ?.addOnCompleteListener { emailTask ->
+                            if (emailTask.isSuccessful) {
+                                _authState.value = AuthState.Authenticated
+                            } else {
+                                _authState.value = AuthState.Error("Account created, but faied to send verification email")
+                            }
+                        }
+                } else {
+                    _authState.value = AuthState.Error(task.exception?.message ?: "Signup Failed")
+                }
+            }
+    }
 
-        // Validate email format
-        if (!isEmailValid(trimmedEmail)) {
-            _authState.value = AuthState.Error("Please enter a valid address.")
-            return
-        }
+    fun isEmailValid(email: String): Boolean {
+        val emailPattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$"
+        return email.matches(emailPattern.toRegex())
+    }
 
-        // Validate Password length
-        if (password.length < 6) {
-            _authState.value = AuthState.Error("Password must be at least 6 characters long.")
-            return
-        }
+    fun sendVerificationEmail() {
+        firebaseAuth.currentUser?.sendEmailVerification()
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _authState.value = AuthState.Error("Verification email sent. Please check your inbox.")
+                }
+            }
+    }
 
+    fun checkEmailVerificationStatus() {
         viewModelScope.launch {
-            repository.signupUser(email, password).collect { result ->
-                _authState.value = when(result) {
-                    is Resource.Loading -> AuthState.Loading
-                    is Resource.Success -> AuthState.Authenticated
-                    is Resource.Error -> AuthState.Error(result.message ?: "Signup Failed")
+            firebaseAuth.currentUser?.reload()?.addOnCompleteListener {
+                val user = firebaseAuth.currentUser
+                if (user?.isEmailVerified == true) {
+                    _authState.value = AuthState.Authenticated
+                } else {
+                    _authState.value = AuthState.Error("Email not verified yet.")
                 }
             }
         }
     }
 
-    fun isEmailValid(email: String): Boolean {
-        val emailPattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,6}\$"
-        return email.matches(emailPattern.toRegex())
+    fun resetPassword(email: String) {
+        if (!isEmailValid(email)) {
+            _authState.value = AuthState.Error("Enter a valid email to reset password")
+            return
+        }
+        firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                _authState.value = AuthState.Error("Reset link sent to your email")
+            } else {
+                _authState.value = AuthState.Error(task.exception?.message ?: "Password reset failed")
+            }
+        }
     }
 
-    fun signOut() {
+    fun signOut(context: android.content.Context) {
+        // Sign out from Firebase
         firebaseAuth.signOut()
+
+        // Sign out from Google (This clears the 'sticky' session)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+
         _authState.value = AuthState.Unauthenticated
+
+        googleSignInClient.signOut()
     }
 }
 

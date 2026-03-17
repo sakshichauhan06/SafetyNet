@@ -104,7 +104,7 @@ fun SignupScreen(
         }
     }
 
-    // ---------------- Navigation and Error Handling
+    // ---------------- Navigation and Error Handling ----------------------
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Authenticated -> {
@@ -216,7 +216,7 @@ fun SignupScreen(
                 onClick = {
                     authViewModel.signup(email, password)
                 },
-                enabled = authState!= AuthState.Loading,
+                enabled = authViewModel.isEmailValid(email) && password.length >= 6 && authState != AuthState.Loading,
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)

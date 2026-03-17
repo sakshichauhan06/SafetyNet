@@ -35,6 +35,7 @@ import com.example.safetynet.ui.auth.LoginScreen
 import com.example.safetynet.ui.auth.OtpVerifyScreen
 import com.example.safetynet.ui.auth.PhoneLoginScreen
 import com.example.safetynet.ui.auth.SignupScreen
+import com.example.safetynet.ui.auth.VerifyEmailScreen
 
 
 @Composable
@@ -70,6 +71,9 @@ fun MainScreen(
             }
             composable(NavigationItem.Signup.route) {
                 SignupScreen(authViewModel, navController)
+            }
+            composable("verify_email") {
+                VerifyEmailScreen(authViewModel, navController)
             }
             composable(NavigationItem.PhoneLogin.route) {
                 PhoneLoginScreen(authViewModel, navController)
