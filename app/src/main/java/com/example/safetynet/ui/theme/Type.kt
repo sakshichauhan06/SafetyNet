@@ -16,151 +16,101 @@ import com.example.safetynet.ui.theme.Typography
 // Set of Material typography styles to start with
 
 @OptIn(ExperimentalTextApi::class)
-val HostGrotesk = FontFamily(
-    // 1. Regular/Normal Weight
-    Font(
-        R.font.host_grotesk_variable,
-        weight = FontWeight.Normal,
-        variationSettings = FontVariation.Settings(
-            settings = arrayOf(
-                FontVariation.weight(400),
-                FontVariation.width(30f),
-            )
-        )
-    ),
 
-    // 2. Light Weight
-    Font(
-        R.font.host_grotesk_variable,
-        weight = FontWeight.Light,
-        variationSettings = FontVariation.Settings(
-            settings = arrayOf(
-                FontVariation.weight(300),
-                FontVariation.width(30f),
-            )
-        )
-    ),
-
-    // 3. Medium Weight
-    Font(
-        R.font.host_grotesk_variable,
-        weight = FontWeight.Medium,
-        variationSettings = FontVariation.Settings(
-            settings = arrayOf(
-                FontVariation.weight(500),
-                FontVariation.width(30f),
-            )
-        )
-    ),
-
-    // 6. Medium Italic
-    Font(
-        R.font.host_grotesk_variable,
-        weight = FontWeight.Medium,
-        variationSettings = FontVariation.Settings(
-            settings = arrayOf(
-                FontVariation.weight(500),
-                FontVariation.width(30f),
-            )
-        )
-    ),
-    // 4. Semibold Weight
-    Font(
-        R.font.host_grotesk_variable,
-        weight = FontWeight.SemiBold,
-        variationSettings = FontVariation.Settings(
-            settings = arrayOf(
-                FontVariation.weight(600),
-                FontVariation.width(30f),
-            )
-        )
-    ),
-
-    // 5. Bold Weight
-    Font(
-        R.font.host_grotesk_variable,
-        weight = FontWeight.Bold,
-        variationSettings = FontVariation.Settings(
-            settings = arrayOf(
-                FontVariation.weight(700),
-                FontVariation.width(30f),
-            )
-        )
-    ),
+val Manrope = FontFamily(
+    Font(R.font.manrope_bold, FontWeight.Bold),
+    Font (R.font.manrope_extrabold, FontWeight.ExtraBold),
+    Font(R.font.manrope_semibold, FontWeight.SemiBold),
+    Font(R.font.manrope_medium, FontWeight.Medium),
+    Font(R.font.manrope_regular, FontWeight.Normal)
 )
 
+val Inter = FontFamily(
+    Font(R.font.inter_bold, FontWeight.Bold),
+    Font(R.font.inter_semibold, FontWeight.SemiBold),
+    Font(R.font.inter_medium, FontWeight.Medium),
+    Font(R.font.inter_regular, FontWeight.Normal)
+)
 val Typography = Typography(
+    // Large Branding/Hero Numbers
     displayLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Bold,
-        fontSize = 42.sp
+        fontFamily = Manrope,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 48.sp,
+        letterSpacing = (-0.25).sp
     ),
 
-    // hero layout, marketing, large headlines
+    // Page titles or marketing
     headlineLarge = TextStyle(
-        fontFamily = HostGrotesk,
+        fontFamily = Manrope,
         fontWeight = FontWeight.Bold,
         fontSize = 34.sp,
+        letterSpacing = 0.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.SemiBold,
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
+        letterSpacing = 0.sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Medium,
-        fontSize = 21.sp
-    ),
-
-    // content titles
-    titleLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Bold,
+        fontFamily = Manrope,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp
     ),
-    titleMedium = TextStyle(
-        fontFamily = HostGrotesk,
+
+    // section headers or content titles
+    titleLarge = TextStyle(
+        fontFamily = Manrope,
         fontWeight = FontWeight.SemiBold,
+        fontSize = 22.sp,
+        letterSpacing = 0.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Medium,
         fontSize = 18.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Normal,
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Medium,
         fontSize = 14.sp
     ),
 
     // soft verbs, body copy, descriptions
     bodyLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Normal,
-        fontSize = 21.sp
+        fontFamily = Inter,
+        fontWeight = FontWeight.Medium, // Medium weight for high readability
+        fontSize = 16.sp,
+        letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Light,
-        fontSize = 16.sp
+        fontFamily = Inter,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        letterSpacing = 0.25.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.ExtraLight,
-        fontSize = 14.sp
+        fontFamily = Inter,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp
     ),
 
-    // buttons, badges, microcopy
+    // buttons, badges, labels, captions, microcopy
     labelLarge = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Medium,
-        fontSize = 18.sp
+        fontFamily = Inter,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
+        fontFamily = Inter,
+        fontWeight = FontWeight.Bold,
+        fontSize = 12.sp,
+        letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = HostGrotesk,
-        fontWeight = FontWeight.Light,
-        fontSize = 14.sp
+        fontFamily = Inter,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp
     )
 )

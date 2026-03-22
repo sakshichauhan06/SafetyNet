@@ -3,30 +3,34 @@ package com.example.safetynet.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Primary Colors
-val ColorPrimary = Color(0xFF0151F7) // Blue Ribbon
-val ColorPrimaryVariant = Color(0xFF003D99)
+val ColorPrimary = Color(0xFF1A237E) // Deep Indigo
+val ColorPrimaryVariant = Color(0xFFE8EAF6)
 val ColorOnPrimary = Color.White
 
 // Secondary Colors
-val ColorSecondary = Color(0xFF00BCD4)
-val ColorSecondaryVariant = Color(0xFF007B90)
+val ColorSecondary = Color(0xFF7E57C2) // Deep Purple
+val ColorSecondaryVariant = Color(0xFFF3E5F5)
 val ColorOnSecondary = Color.White
 
+// Tertiary (Attention) Colors
+val ColorTertiary = Color(0xFFE57373) // Soft red
+val ColorOnTertiary = Color.White
+
 // BackGround Colors
-val ColorLightBackground = Color(0xFFE0E0FF)
-val ColorOnLightBackground = Color(0xFF0A0A1C)
+val ColorLightBackground = Color(0xFFF5F5F7)
+val ColorOnLightBackground = Color(0xFF1C1B1F)
 val ColorLightBlue = Color(0xFFC6DCFF)
 val ColorLightestBlue = Color(0xFFE0EAFF)
 
-val ColorDarkBackground = Color(0xFF0A0A1C)
-val ColorOnDarkBackground = Color.White
+val ColorDarkBackground = Color(0xFF121212)
+val ColorOnDarkBackground = Color(0xFFE6E1E5)
 
 // Surface Colors
-val ColorSurface = Color(0xFFE0E0E0)
-val ColorOnSurface = Color(0xFF0A0A1C)
+val ColorSurface = Color.White
+val ColorOnSurface = Color(0xFF1C1B1F)
 
 // Error Colors
-val ColorError = Color(0xFFD32F2F)
+val ColorError = Color(0xFFB00020)
 val ColorOnError = Color.White
 
 val ColorCritical = Color(0xFFEB2A34)
@@ -34,6 +38,9 @@ val ColorCritical = Color(0xFFEB2A34)
 
 
 // Neutral Colors
+val ColorNeutral = Color(0xFFE1E2EC)
+val ColorOnNeutral = Color(0xFF767680)
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)

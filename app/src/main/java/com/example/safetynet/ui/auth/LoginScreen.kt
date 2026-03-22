@@ -5,7 +5,9 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,14 +19,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AlternateEmail
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,8 +46,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,8 +61,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -87,6 +102,19 @@ fun LoginScreen(
 
     var showForgotDialog by remember { mutableStateOf(false) }
     var resetEmail by remember { mutableStateOf("") }
+
+    val savedEmail by viewModel.rememberedEmail.collectAsStateWithLifecycle()
+    val savedChecked by viewModel.isRememberMeChecked.collectAsStateWithLifecycle()
+
+    var rememberMe by remember { mutableStateOf(false) }
+
+    // ------------------- Remember me? ----------------
+    LaunchedEffect(savedEmail, savedChecked) {
+        if (savedChecked) {
+            email = savedEmail ?: ""
+            rememberMe = true
+        }
+    }
 
     // ------------ Google Sign-in setup ------------
     val gso = remember {
@@ -153,7 +181,7 @@ fun LoginScreen(
         when(authState) {
             is AuthState.Authenticated -> {
                 navController.navigate("map") {
-                    popUpTo("login") { inclusive = true }
+                    popUpTo(0) { inclusive = true }
                 }
             }
             is AuthState.Error -> {
@@ -169,155 +197,268 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .background(Color(0xFFF6FAFF))
+                .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Login",
-                style = MaterialTheme.typography.headlineLarge
+            //---------- Branding section --------------------
+            Image( // Logo
+                painter = painterResource(id = com.example.safetynet.R.drawable.ellipse_logo),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .width(65.dp)
+                    .height(53.dp)
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // Login
+            Text(
+                text = "Login",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF001B3D)
+            )
+
+            // Login subsection
             TextButton(onClick = {
                 navController.navigate("signup")
             }) {
                 Text(
                     text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(color = Color.Gray, fontWeight = FontWeight.Normal)) {
+                        withStyle(style = SpanStyle(color = Color(0xFF4447AE), fontWeight = FontWeight.Normal)) {
                             append("Don't Have An Account?")
                         }
                         withStyle(
                             style = SpanStyle(
-                                color = Color.Blue,
+                                color = Color(0xFFBA002C),
                                 fontWeight = FontWeight.Bold
                             ),) {
                             append(" Sign Up")
                         }
                     },
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Email field
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = {
-                    Text(
-                        text = "Email Address",
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
-                },
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    color = Color.Black,
-                )
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Password field
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = {
-                    Text(
-                        text = "Password",
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val image = if (isPasswordVisible)
-                        Icons.Filled.Visibility
-                    else
-                        Icons.Filled.VisibilityOff
-
-                    val description = if (isPasswordVisible)
-                        "Hide Password"
-                    else
-                        "Show Password"
-
-                    IconButton(onClick = {isPasswordVisible = !isPasswordVisible}) {
-                        Icon(imageVector = image, contentDescription = description)
-                    }
-                },
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    color = Color.Black,
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Remember Me and Forgot password
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // ---------------- Login Form ------------------------
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = isChecked.value,
-                        onCheckedChange = { isChecked.value = it },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Color.Blue,
-                            uncheckedColor = Color.DarkGray,
-                            checkmarkColor = Color.White
+                // Email field
+                Text(
+                    text = " EMAIL ADDRESS",
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = TextAlign.Start
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = {
+                        Text(text = "Enter your email", color = Color.Gray)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.AlternateEmail,
+                            contentDescription = null,
+                            tint = Color.DarkGray,
+                            modifier = Modifier.size(24.dp)
                         )
+                    },
+                    modifier = Modifier
+                        .background(
+                            color = Color(0xFFE4E9ED),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        color = Color.Black,
                     )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Password field
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = " PASSWORD",
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Start
+                    )
+                    TextButton(
+                        onClick = { showForgotDialog = true }
+                    ) {
+                        Text(
+                            text = "Forgot Password?",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color(0xFF011C3E)
+                        )
+                    }
+                }
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = {
+                        Text(text = "••••••••", color = Color.Gray)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Lock,
+                            contentDescription = null,
+                            tint = Color.DarkGray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .background(
+                            color = Color(0xFFE4E9ED),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    ),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (isPasswordVisible)
+                            Icons.Outlined.Visibility
+                        else
+                            Icons.Outlined.VisibilityOff
+
+                        val description = if (isPasswordVisible)
+                            "Hide Password"
+                        else
+                            "Show Password"
+
+                        IconButton(onClick = {isPasswordVisible = !isPasswordVisible}) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    },
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        color = Color.Black,
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null // Removes the ripple if you want it super clean
+                    ) {
+                        rememberMe = !rememberMe
+                    }
+                ) {
+                    // --- CUSTOM RADIO-STYLE BOX ---
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (rememberMe) Color(0xFF001B3D) // Dark Indigo when checked
+                                else Color(0xFFF0F2F5)            // Gray when unchecked
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (rememberMe) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     Text(text = "Remember me", fontSize = 14.sp, color = Color.Gray)
                 }
 
-                TextButton(
-                    onClick = { showForgotDialog = true }
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Login button
+                Button(
+                    onClick = {
+                        viewModel.login(email, password, rememberMe)
+                    },
+                    enabled = authState != AuthState.Loading,
+                    shape = RoundedCornerShape(4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011C3E))
                 ) {
                     Text(
-                        text = "Forgot Password?",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Blue
+                        text = "Login",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // ---------- Social Login Section -----------------------
 
-            // Login button
-            Button(
-                onClick = {
-                    viewModel.login(email, password)
-                },
-                enabled = authState != AuthState.Loading,
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Left Divider
+                androidx.compose.material3.HorizontalDivider(
+                    modifier = Modifier.weight(1f),
+                    thickness = 1.dp,
+                    color = Color.LightGray
+                )
                 Text(
-                    text = "Login",
-                    color = Color.White,
+                    text = "OR CONTINUE WITH",
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     style = MaterialTheme.typography.labelMedium,
-                    textAlign = TextAlign.Center
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Bold
+                )
+                // Right Divider
+                androidx.compose.material3.HorizontalDivider(
+                    modifier = Modifier.weight(1f),
+                    thickness = 1.dp,
+                    color = Color.LightGray
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Or Continue with",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Social Buttons Row
             Row(
@@ -330,46 +471,59 @@ fun LoginScreen(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 8.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                 ) {
-                    Text(
-                        text = "Google",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = com.example.safetynet.R.drawable.google_logo),
+                            contentDescription = "Google Logo",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "Google",
+                            color = Color.Black,
+                            style = MaterialTheme.typography.labelLarge,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
 
                 // Phone Login button
                 Button(
                     onClick = { navController.navigate("phone_login") },
                     modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                 ) {
-                    Text(
-                        text = "Phone",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.Phone,
+                            contentDescription = "Phone Icon",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "Phone",
+                            color = Color.Black,
+                            style = MaterialTheme.typography.labelLarge,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
 
-            // Guest Login Button
-            TextButton(
-                onClick = { viewModel.signInAnonymously() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Continue as Guest",
-                    color = Color.DarkGray,
-                    style = MaterialTheme.typography.labelLarge,
-                    textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
-                )
-            }
+            Spacer(modifier = Modifier.height(40.dp))
+            // ------------------ Legal Info --------------------
+            Text(
+                text = "By signing in to SafetyNet, you agree to our \nTerms of Service and Privacy Policy",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+            )
         }
 
         // --------- Loading Overlay -----------

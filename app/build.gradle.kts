@@ -137,6 +137,7 @@ dependencies {
     implementation("androidx.credentials:credentials:1.5.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
     // Dagger-Hilt
     implementation(libs.hilt.android)
@@ -148,5 +149,8 @@ dependencies {
 //    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     implementation("androidx.customview:customview-poolingcontainer:1.1.0")
+
+    // Jetpack Datastore
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
 
 }
