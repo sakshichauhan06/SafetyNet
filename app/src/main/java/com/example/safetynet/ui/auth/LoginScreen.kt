@@ -107,12 +107,14 @@ fun LoginScreen(
     val savedChecked by viewModel.isRememberMeChecked.collectAsStateWithLifecycle()
 
     var rememberMe by remember { mutableStateOf(false) }
+    var hasAutoFilled by remember { mutableStateOf(false) }
 
     // ------------------- Remember me? ----------------
     LaunchedEffect(savedEmail, savedChecked) {
-        if (savedChecked) {
-            email = savedEmail ?: ""
+        if (!hasAutoFilled && savedChecked == true && savedEmail != null) {
+            email = savedEmail!!
             rememberMe = true
+            hasAutoFilled = true
         }
     }
 
@@ -228,18 +230,24 @@ fun LoginScreen(
             }) {
                 Text(
                     text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(color = Color(0xFF4447AE), fontWeight = FontWeight.Normal)) {
+                        withStyle(
+                            style = SpanStyle(
+                                color = Color.Gray,
+                                fontWeight = FontWeight.Normal
+                            )
+                        ) {
                             append("Don't Have An Account?")
                         }
                         withStyle(
                             style = SpanStyle(
                                 color = Color(0xFFBA002C),
                                 fontWeight = FontWeight.Bold
-                            ),) {
+                            ),
+                        ) {
                             append(" Sign Up")
                         }
                     },
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 

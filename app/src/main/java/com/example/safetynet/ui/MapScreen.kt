@@ -5,6 +5,10 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,8 +16,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,7 +30,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Sos
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -32,6 +41,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -47,9 +57,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -386,80 +400,166 @@ fun SafetyMarker(
 
 @Composable
 fun PermissionRequiredScreen(onSettingsClick: () -> Unit) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { isVisible = true }
+
+    val backgroundGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF001C3E),
+            Color(0xFF08254D),
+            Color(0xFF123260),
+            Color(0xFF193B6D),
+        ),
+        startY = 0f,
+        endY = Float.POSITIVE_INFINITY
+    )
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFE0E0FF))
+            .background(brush = backgroundGradient)
     ) {
-        ElevatedCard (
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            shape = RoundedCornerShape(42.dp),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 6.dp
-            ),
+        Column(
             modifier = Modifier
-                .background(Color(0xFFE0E0FF))
-                .padding(46.dp)
-                .size(width = 311.dp, height = 400.dp),
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Box(
                 modifier = Modifier
-                    .padding(21.dp)
-                    .fillMaxSize()
+                    .size(140.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape),
+                contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(R.drawable.pin),
-                    modifier = Modifier.size(88.dp),
-                    contentDescription = "Location Permission Required",
-                    colorFilter = null,
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Location Permission Required",
-                    color = ColorOnSurface,
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "This app requires location access to show nearby safety incidents and help keep you safe.",
-                    color = ColorOnSurface,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Button(
-                    onClick = onSettingsClick,
+                Box(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .width(158.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = true,
-                    contentPadding = PaddingValues(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A0A1C))
-                    ) {
-                    Text(
-                        text = "Open Settings",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center
+                        .size(110.dp)
+                        .clip(CircleShape)
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.pin),
+                        contentDescription = null,
+                        modifier = Modifier.size(50.dp)
                     )
                 }
             }
+
+            Text(
+                text = "Location Permission Required",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 28.dp)
+            )
+
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(tween(800)) + slideInVertically(tween(600)) {
+                    it / 4
+                }
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Safety needs your location to \nalert contacts " +
+                                "and \nemergency services if you're \nin danger.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 24.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    PermissionInfoTag(
+                        icon = Icons.Outlined.Shield,
+                        text = "Real-time safety monitoring"
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    PermissionInfoTag(
+                        icon = Icons.Default.Sos,
+                        text = "Instant emergency SOS alerts"
+                    )
+
+                    Spacer(modifier = Modifier.height(48.dp))
+
+                    Button(
+                        onClick = onSettingsClick,
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF001B3D)),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                    ) {
+                        Text(
+                            text = "OPEN SETTINGS",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Lock,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "ENCRYPTED PRIVATE DATA",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.4f)
+                        )
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun PermissionInfoTag(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    val shape = RoundedCornerShape(16.dp)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .height(64.dp)
+            .clip(shape)
+            .background(Color.White.copy(alpha = 0.03f))
+            .border(1.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(16.dp)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.05f))
+                .border(1.dp, Color.White.copy(alpha = 0.08f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(21.dp))
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = text, color = Color.White, style = MaterialTheme.typography.labelMedium)
     }
 }
 
