@@ -6,6 +6,12 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -15,7 +21,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +28,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,12 +39,9 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -49,7 +49,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -60,7 +59,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,31 +69,26 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.safetynet.R
 import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.ReportIncidentDialog
 import com.example.safetynet.ui.components.EmptySafetyPinState
 import com.example.safetynet.ui.components.ViewPinDetailsDialog
-import com.example.safetynet.ui.theme.ColorOnSurface
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import com.example.safetynet.domain.SeverityLevel
-import com.example.safetynet.ui.TrackingPulse
 import timber.log.Timber
 import com.example.safetynet.utils.AppConstants
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 
@@ -295,10 +288,8 @@ fun MapScreen(mapViewModel: MapViewModel) {
                 ) {
                     // user location marker
                     userLocation?.let { location ->
-                        Marker(
-                            state = MarkerState(position = location),
-                            title = "Your Location"
-                        )
+                        UserLocationMarker(position = location)
+
                         LaunchedEffect(location) {
                             if (!hasInitiallyCentered) {
                                 cameraPositionState.animate(
@@ -322,16 +313,6 @@ fun MapScreen(mapViewModel: MapViewModel) {
                             )
                         }
                     }
-                }
-
-                // Pulse Icon Overlay
-                Box(
-                    modifier = Modifier
-                        .statusBarsPadding()
-                        .padding(16.dp)
-                        .align(Alignment.TopStart)
-                ) {
-                    TrackingPulse(isActive = userLocation != null)
                 }
 
                 if (showEmptyState) {
@@ -563,10 +544,82 @@ fun PermissionInfoTag(icon: androidx.compose.ui.graphics.vector.ImageVector, tex
     }
 }
 
+@Composable
+fun UserLocationMarker(position: LatLng) {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val animationDuration = 3000
+    val userLocationColor = Color(0xFF1A237E)
+
+    val rings = listOf(0f, 0.33f, 0.66f)
+
+    MarkerComposable(
+        state = rememberUpdatedMarkerState(position = position),
+        anchor = androidx.compose.ui.geometry.Offset(0.5f, 0.5f)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .background(userLocationColor, CircleShape)
+                .border(2.dp, userLocationColor, CircleShape)
+        )
+    }
+
+    rings.forEachIndexed { index, phaseOffset ->
+        val delay = (phaseOffset * animationDuration).toInt()
+
+        val radius by infiniteTransition.animateFloat(
+            initialValue = 10f,
+            targetValue = 100f,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = animationDuration
+                    10f at delay using LinearEasing
+                    40f at (delay + animationDuration / 3) using LinearEasing
+                    80f at animationDuration using LinearEasing
+                },
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "radius_$index"
+        )
+
+        val alpha by infiniteTransition.animateFloat(
+            initialValue = 0.6f,
+            targetValue = 0f,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = animationDuration
+                    0f at delay using LinearEasing
+                    0.6f at (delay + 100) using LinearEasing
+                    0.3f at (delay + animationDuration / 2) using LinearEasing
+                    0f at animationDuration using LinearEasing
+                },
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "alpha_$index"
+        )
+
+        if (alpha > 0.01f) {
+            Circle(
+                center = position,
+                radius = radius.toDouble(),
+                fillColor = userLocationColor.copy(alpha = alpha * 0.25f),
+                strokeColor = userLocationColor.copy(alpha = alpha * 0.6f),
+                strokeWidth = 2f,
+                clickable = false
+            )
+        }
+    }
+}
 
 
-//@Preview
-//@Composable
-//fun MapScreenPreview() {
-//
-//}
+
+
+
+
+
+
+
+
+
+
+
