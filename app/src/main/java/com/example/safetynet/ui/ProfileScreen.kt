@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -48,6 +49,7 @@ import androidx.navigation.NavController
 import com.example.safetynet.ui.NavigationItem.Incidents.title
 import com.example.safetynet.ui.auth.AuthState
 import com.example.safetynet.ui.auth.AuthViewModel
+import com.example.safetynet.ui.theme.safeContentPadding
 
 @Composable
 fun ProfileScreen(
@@ -78,6 +80,7 @@ fun ProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

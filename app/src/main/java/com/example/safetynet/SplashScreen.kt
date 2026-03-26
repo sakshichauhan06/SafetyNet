@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -39,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.safetynet.ui.auth.AuthViewModel
+import com.example.safetynet.ui.theme.safeContentPadding
 import com.google.android.play.integrity.internal.u
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
@@ -88,6 +90,7 @@ fun SplashScreen(navController: NavController, authViewModel: AuthViewModel) {
     Box( // layer 0: The Indigo Background
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .background(color = Color(0xFF001B3D))
     ) {
         // --- LAYER 1: THE GLASS CARD SHELL ---

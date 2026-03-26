@@ -1,7 +1,9 @@
 package com.example.safetynet.ui
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SafetyCheck
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,9 +21,10 @@ sealed class NavigationItem(
     object PhoneLogin : NavigationItem("phone_login", "Phone Login")
 
     // Main Screens (Icons needed)
-    object Incidents : NavigationItem("incidents", "Incidents", Icons.Filled.SafetyCheck)
-    object Map : NavigationItem("map", "Map", Icons.Filled.Map)
-    object Profile : NavigationItem("profile", "Profile", Icons.Filled.Person)
+    object Map : NavigationItem("map", "MAP", Icons.Filled.Map)
+    object Incidents : NavigationItem("incidents", "ALERTS", Icons.Filled.AddAlert)
+    object Connect: NavigationItem("connect", "CONNECT", Icons.Filled.People)
+    object Profile : NavigationItem("profile", "PROFILE", Icons.Filled.Person)
 
     object ManageProfile : NavigationItem("manage_profile", "Manage Profile")
 
@@ -35,6 +38,6 @@ sealed class NavigationItem(
 
     // Helper list for the Bottom Bar to loop through
     companion object {
-        val bottomBarItems = listOf(Incidents, Map, Profile)
+        val bottomBarItems = listOf(Map, Incidents, Connect, Profile)
     }
 }

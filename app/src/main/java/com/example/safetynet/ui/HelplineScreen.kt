@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.core.net.toUri
 import com.example.safetynet.domain.Helpline
+import com.example.safetynet.ui.theme.safeContentPadding
 
 @Composable
 fun HelplineScreen(naveController: NavController) {
@@ -45,6 +46,7 @@ fun HelplineScreen(naveController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .padding(16.dp)
     ) {
         Text(

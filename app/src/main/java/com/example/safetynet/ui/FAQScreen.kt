@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.safetynet.domain.FAQItem
+import com.example.safetynet.ui.theme.safeContentPadding
 
 @Composable
 fun FAQScreen() {
@@ -47,6 +48,7 @@ fun FAQScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .padding(16.dp)
     ) {
         Text(

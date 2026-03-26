@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.safetynet.ui.theme.safeContentPadding
 
 
 @Composable
@@ -53,6 +54,7 @@ fun ManageProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

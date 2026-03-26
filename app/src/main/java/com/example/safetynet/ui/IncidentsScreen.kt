@@ -39,6 +39,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.toColorInt
 import com.example.safetynet.domain.SeverityLevel
+import com.example.safetynet.ui.theme.safeContentPadding
 
 @Composable
 fun IncidentsScreen(mapViewModel: MapViewModel) {
@@ -70,6 +71,7 @@ fun IncidentsScreen(mapViewModel: MapViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .padding(16.dp)
     ) {
         Text(

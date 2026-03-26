@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.core.net.toUri
+import com.example.safetynet.ui.theme.safeContentPadding
 
 @Composable
 fun ReportBugScreen(navController: NavController) {
@@ -31,6 +32,7 @@ fun ReportBugScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .padding(24.dp)
     ) {
         Text(

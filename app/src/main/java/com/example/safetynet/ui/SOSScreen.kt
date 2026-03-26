@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.net.toUri
+import com.example.safetynet.ui.theme.safeContentPadding
 import kotlinx.coroutines.delay
 
 @Composable
@@ -75,6 +76,7 @@ fun SOSScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

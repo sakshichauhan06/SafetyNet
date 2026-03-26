@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -272,65 +273,66 @@ fun MapScreen(mapViewModel: MapViewModel) {
             }
         )
     } else {
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) }
-        ) { padding ->
-            Box(modifier = Modifier.padding(0.dp)) {
-                GoogleMap(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    cameraPositionState = cameraPositionState,
-                    properties = mapProperties,
-                    uiSettings = uiSettings,
-                    onMapClick = { latLng ->
-                        mapViewModel.onMapTapped(latLng)
-                    }
-                ) {
-                    // user location marker
-                    userLocation?.let { location ->
-                        UserLocationMarker(position = location)
 
-                        LaunchedEffect(location) {
-                            if (!hasInitiallyCentered) {
-                                cameraPositionState.animate(
-                                    CameraUpdateFactory.newLatLngZoom(location, AppConstants.DEFAULT_MAP_ZOOM)
-                                )
-                                hasInitiallyCentered = true
-                            }
-                        }
-                    }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+        ) {
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = mapProperties,
+                uiSettings = uiSettings,
+                onMapClick = { latLng ->
+                    mapViewModel.onMapTapped(latLng)
+                }
+            ) {
+                // user location marker
+                userLocation?.let { location ->
+                    UserLocationMarker(position = location)
 
-                    // display all saved pins inside GoogleMap Block
-                    safetyPins.forEach { pin ->
-                        key(pin.id) {
-                            SafetyMarker(
-                                position = LatLng(pin.latitude, pin.longitude),
-                                severity = pin.severity,
-                                title = pin.shortDescription,
-                                onMarkerClick = {
-                                    mapViewModel.onPinSelected(pin)
-                                }
+                    LaunchedEffect(location) {
+                        if (!hasInitiallyCentered) {
+                            cameraPositionState.animate(
+                                CameraUpdateFactory.newLatLngZoom(location, AppConstants.DEFAULT_MAP_ZOOM)
                             )
+                            hasInitiallyCentered = true
                         }
                     }
                 }
 
-                if (showEmptyState) {
-                    EmptySafetyPinState()
-                }
-
-                if(isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                            .align(Alignment.Center)
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(50.dp)
-                                .align(Alignment.Center),
-                            color = MaterialTheme.colorScheme.primary
+                // display all saved pins inside GoogleMap Block
+                safetyPins.forEach { pin ->
+                    key(pin.id) {
+                        SafetyMarker(
+                            position = LatLng(pin.latitude, pin.longitude),
+                            severity = pin.severity,
+                            title = pin.shortDescription,
+                            onMarkerClick = {
+                                mapViewModel.onPinSelected(pin)
+                            }
                         )
                     }
+                }
+            }
+
+            if (showEmptyState) {
+                EmptySafetyPinState()
+            }
+
+            if(isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .align(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
