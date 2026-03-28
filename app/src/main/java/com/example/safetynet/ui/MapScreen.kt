@@ -70,6 +70,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import com.example.safetynet.R
 import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.ui.MapViewModel
@@ -85,16 +86,21 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.safetynet.domain.SeverityLevel
+import com.example.safetynet.ui.TopBar
 import timber.log.Timber
 import com.example.safetynet.utils.AppConstants
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 
 @Composable
-fun MapScreen(mapViewModel: MapViewModel) {
+fun MapScreen(
+    mapViewModel: MapViewModel,
+    cameraPositionState: CameraPositionState
+) {
 
     val userLocation by mapViewModel.userLocation
     val context = LocalContext.current
@@ -317,6 +323,12 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     }
                 }
             }
+
+//            TopBar(
+//                onMenuClick = {  },
+//                onSosClick = {  },
+//                onLocationClick = {  }
+//            )
 
             if (showEmptyState) {
                 EmptySafetyPinState()

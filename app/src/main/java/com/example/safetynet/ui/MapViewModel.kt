@@ -15,14 +15,21 @@ import timber.log.Timber
 import com.example.safetynet.usecases.DeletePinUseCase
 import com.example.safetynet.usecases.GetAllPinsUseCase
 import com.example.safetynet.usecases.SavePinUseCase
+import com.example.safetynet.utils.AppConstants
 import com.example.safetynet.utils.NotificationHelper
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.maps.android.compose.CameraPositionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.flow.flatMapLatest
@@ -112,21 +119,62 @@ class MapViewModel @Inject constructor (
     private val currentUserId: String
         get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    // -------------------------- Actions -----------------------
+    // ------------------------ Location Tracking State -------------
+    private val _isTrackingLocation = MutableStateFlow(false)
+    val isTrackingLocation: StateFlow<Boolean> = _isTrackingLocation.asStateFlow()
+
+    // Camera positon state for map control
+    private val _cameraPositionState = mutableStateOf<CameraPositionState?>(null)
+
+    fun setCameraPositionState(state: CameraPositionState) {
+        _cameraPositionState.value = state
+    }
+
+    // ----------------- TopBar Actions -----------------
+
+    /**
+     * Centers map on user's current location
+     * Called from TopBar location beacon
+     */
+    fun centerOnUserLocation() {
+        viewModelScope.launch {
+            userLocation.value?.let { location ->
+                _cameraPositionState.value?.animate(
+                    CameraUpdateFactory.newLatLngZoom(location, AppConstants.DEFAULT_MAP_ZOOM)
+                )
+                _isTrackingLocation.value = true
+                delay(1000)
+                _isTrackingLocation.value = false
+            }
+        }
+    }
+
+    /**
+     * Resets map view to default zoom on user location
+     * Called from TopBar logo click
+     */
+    fun resetMapView() {
+        centerOnUserLocation()
+    }
+
+    // Update observeLocationStream to set tracking state
     private fun observeLocationStream() {
         viewModelScope.launch {
             try {
-                // collects form the callbackFlow we built in repository
-                locationRepository.getLocationUpdates().collect() { latLng ->
+                locationRepository.getLocationUpdates().collect { latLng ->
                     _userLocation.value = latLng
+                    _isTrackingLocation.value = true
                     checkProximityToDanger(latLng.latitude, latLng.longitude)
-                    Timber.d("Automatic Update: ${latLng.latitude}, ${latLng.longitude}")
+                    Timber.d("Location update: ${latLng.latitude}, ${latLng.longitude}")
                 }
             } catch (e: Exception) {
+                _isTrackingLocation.value = false
                 Timber.e(e, "Error in location stream")
             }
         }
     }
+
+    // -------------------------- Actions -----------------------
 
 
     /**
