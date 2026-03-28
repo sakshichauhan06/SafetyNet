@@ -3,6 +3,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -71,6 +72,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import androidx.room.util.query
 import com.example.safetynet.R
 import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.ui.MapViewModel
@@ -87,6 +89,8 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.safetynet.domain.SeverityLevel
 import com.example.safetynet.ui.TopBar
+import com.example.safetynet.ui.components.SafetySearchBar
+import com.example.safetynet.ui.components.SeverityFilterBar
 import timber.log.Timber
 import com.example.safetynet.utils.AppConstants
 import com.google.firebase.Firebase
@@ -129,6 +133,10 @@ fun MapScreen(
     val auth = Firebase.auth
     val currentUserId = auth.currentUser?.uid ?: "anonymous_user"
 
+    var searchQuery by remember { mutableStateOf("") }
+    var activeFilters by remember { mutableStateOf(setOf<SeverityLevel>()) }
+    val recentSearches by mapViewModel.recentSearches.collectAsStateWithLifecycle()
+
 
     val mapProperties = remember {
         MapProperties(
@@ -138,6 +146,35 @@ fun MapScreen(
 
     val uiSettings = remember {
         MapUiSettings(zoomControlsEnabled = false)
+    }
+
+    // Voice launcher
+    val voiceLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val matches = result.data?.getStringArrayListExtra(
+                android.speech.RecognizerIntent.EXTRA_RESULTS
+            )
+            matches?.firstOrNull()?.let { spokenText ->
+                searchQuery = spokenText
+                mapViewModel.searchLocation(spokenText)
+            }
+        }
+    }
+
+    fun launchVoiceSearch() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Where are you heading?")
+        }
+        try {
+           voiceLauncher.launch(intent)
+        } catch (e: Exception) {
+            // when voice search is not supported on this device
+            Timber.e(e, "Voice search not available")
+        }
     }
 
     // Permission launcher
@@ -279,11 +316,10 @@ fun MapScreen(
             }
         )
     } else {
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
+                .padding(top = 100.dp)
         ) {
             GoogleMap(
                 modifier = Modifier
@@ -324,11 +360,44 @@ fun MapScreen(
                 }
             }
 
-//            TopBar(
-//                onMenuClick = {  },
-//                onSosClick = {  },
-//                onLocationClick = {  }
-//            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Search bar
+                SafetySearchBar(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    onSearch = {
+                        mapViewModel.searchLocation(searchQuery)
+                    },
+                    onVoiceSearch = {
+                        // launch voice intent
+                        launchVoiceSearch()
+                    },
+                    recentSearches = recentSearches,
+                    onRecentSearchClick = {
+                        searchQuery = it
+                        mapViewModel.searchLocation(it)
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Severity Filters
+                SeverityFilterBar(
+                    activeFilters = activeFilters,
+                    onFilterToggle = { severity ->
+                        activeFilters = if (activeFilters.contains(severity)) {
+                            activeFilters - severity
+                        } else {
+                            activeFilters + severity
+                        }
+                        mapViewModel.setSeverityFilter(activeFilters)
+                    }
+                )
+            }
 
             if (showEmptyState) {
                 EmptySafetyPinState()
@@ -366,6 +435,7 @@ fun SafetyMarker(
         SeverityLevel.ORANGE -> Color(0xFFE67E22) to Icons.Default.Warning
         SeverityLevel.YELLOW -> Color(0xFFF1C40F) to Icons.Default.LocationOn
         SeverityLevel.GREEN -> Color(0xFF2ECC71) to Icons.Default.LocationOn
+        SeverityLevel.GREY -> Color(0xFFBAC3CC) to Icons.Default.LocationOn
     }
 
     MarkerComposable(

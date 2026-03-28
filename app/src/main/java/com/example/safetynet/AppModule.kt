@@ -69,6 +69,10 @@ object AppModule {
         return NotificationHelper(context)
     }
 
+    @Provides
+    @Singleton
+    fun provideContext(@ApplicationContext context: Context): Context = context
+
 //
 //    @Provides
 //    @Singleton

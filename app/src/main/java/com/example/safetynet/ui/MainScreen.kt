@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Emergency
@@ -47,6 +49,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -275,53 +278,62 @@ fun TopBar(
     hasLocationPermission: Boolean,
     isLocationActive: Boolean
 ) {
-    CenterAlignedTopAppBar(
+    TopAppBar(
+        modifier = Modifier.height(100.dp),
         title = {
             Row(
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable(onClick = onLogoClick)
+                modifier = Modifier
+                    .clickable(onClick = onLogoClick)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ellipse_logo),
-                    contentDescription = "Logo Icon",
-                    modifier = Modifier.size(28.dp),
-                    contentScale = ContentScale.Fit,
-//                    tint = Color(0xFF1A237E),
-                )
+//                Image(
+//                    painter = painterResource(id = R.drawable.logo_ver2),
+//                    contentDescription = "Logo Icon",
+//                    modifier = Modifier
+//                        .height(60.dp)
+//                        .widthIn(max = 120.dp),
+//                    contentScale = ContentScale.Fit,
+//                )
                 Text(
                     text = "SafetyNet",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
                     color = Color(0xFF1A237E)
                 )
             }
         },
         // Hamburger Menu
         navigationIcon = {
-            IconButton(onClick = onMenuClick) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
-                    tint = Color(0xFF1A237E),
-                    modifier = Modifier.size(28.dp)
-                )
+            Box(
+                modifier = Modifier.fillMaxHeight(),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(onClick = onMenuClick) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu",
+                        tint = Color(0xFF1A237E),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         },
         // Left side of TopBar
         actions = {
+            // SOS Pill Button
+            SosButton(onClick = onSosClick)
+
+            Spacer(modifier = Modifier.width(8.dp))
+
             // Location Icon
             LocationBeacon(
                 hasPermission = hasLocationPermission,
                 isActive = isLocationActive,
                 onClick = onLocationClick
             )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // SOS Pilll Button
-            SosButton(onClick = onSosClick)
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xFFDAE7E5)
         )
     )

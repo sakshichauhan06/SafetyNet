@@ -178,22 +178,6 @@ private fun getSeverityColor(severity: SeverityLevel): Color {
         SeverityLevel.ORANGE -> Color(0xFFFF5D00)
         SeverityLevel.YELLOW -> Color(0xFFFFE733)
         SeverityLevel.GREEN -> Color(0xFF00FF54)
-    }
-}
-
-private fun getSecerityColorGradient(severity: SeverityLevel): Pair<Color, Color> {
-    return when(severity) {
-        SeverityLevel.RED -> {
-            Color(0xFFFFA6A7) to Color(0xFFFFEDED)
-        }
-        SeverityLevel.ORANGE -> {
-            Color(0xFFFFB78D) to Color(0xFFFFEDEB)
-        }
-        SeverityLevel.YELLOW -> {
-            Color(0xFFFFDA8F) to Color(0xFFFFF4DF)
-        }
-        SeverityLevel.GREEN -> {
-            Color(0xFFACFFC8) to Color(0xFFF1FFF5)
-        }
+        SeverityLevel.GREY -> Color(0xFFBAC3CC)
     }
 }

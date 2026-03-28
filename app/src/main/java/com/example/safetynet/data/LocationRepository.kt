@@ -1,6 +1,7 @@
 package com.example.safetynet.data
 
 import android.annotation.SuppressLint
+import android.content.Context
 import com.google.android.gms.location.LocationRequest
 import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -26,7 +27,8 @@ import kotlin.coroutines.resume
 
 class LocationRepository @Inject constructor(
     private val safetyPinDao: SafetyPinDao,
-    private val fusedLocationClient: FusedLocationProviderClient
+    private val fusedLocationClient: FusedLocationProviderClient,
+    val context: android.content.Context
 ) {
     suspend fun getCurrentLocation() : Result<LatLng> {
         return suspendCancellableCoroutine { continuation ->
@@ -44,6 +46,22 @@ class LocationRepository @Inject constructor(
             } catch (e: SecurityException) {
                 continuation.resume(Result.failure(e))
             }
+        }
+    }
+
+    suspend fun searchLocation(query: String): Result<LatLng> {
+        return try {
+            val geocoder = android.location.Geocoder(context)
+            val addresses = geocoder.getFromLocationName(query, 1)
+
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                Result.success(LatLng(address.latitude, address.longitude))
+            } else {
+                Result.failure(Exception("Location not found: $query"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

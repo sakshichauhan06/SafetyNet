@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -80,6 +81,13 @@ class MapViewModel @Inject constructor (
     private val _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
 
+    // state for search functionality
+    private val _recentSearches = MutableStateFlow<List<String>>(emptyList())
+    val recentSearches: StateFlow<List<String>> = _recentSearches.asStateFlow()
+
+    private val _activeSeverityFilters = MutableStateFlow<Set<SeverityLevel>>(emptySet())
+    val activeSeverityFilters: StateFlow<Set<SeverityLevel>> = _activeSeverityFilters.asStateFlow()
+
     // Real-time Data state
     // whenever a pin is added/deleted in the cloud, this list updates itself
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -87,6 +95,11 @@ class MapViewModel @Inject constructor (
         .flatMapLatest { location ->
             if(location == null) flowOf(emptyList())
             else getAllPinsUseCase(location)
+        }
+        .map { pins ->
+            val activeFilters = _activeSeverityFilters.value
+            if (activeFilters.isEmpty()) pins
+            else pins.filter { it.severity in activeFilters }
         }
         .stateIn(
             scope = viewModelScope,
@@ -175,6 +188,26 @@ class MapViewModel @Inject constructor (
     }
 
     // -------------------------- Actions -----------------------
+
+    fun searchLocation(query: String) {
+        viewModelScope.launch {
+            // add to recents
+            _recentSearches.value = (listOf(query) +
+                    _recentSearches.value).take(10).distinct()
+
+            // Use Places API or geocoding to find location and then animate camera
+            locationRepository.searchLocation(query)
+                .onSuccess { latLng ->
+                    _cameraPositionState.value?.animate(
+                        CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+                    )
+                }
+        }
+    }
+
+    fun setSeverityFilter(filters: Set<SeverityLevel>) {
+        _activeSeverityFilters.value = filters
+    }
 
 
     /**

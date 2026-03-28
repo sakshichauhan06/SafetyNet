@@ -56,7 +56,8 @@ class GetAllPinsUseCase @Inject constructor(
             SeverityLevel.RED -> 0
             SeverityLevel.ORANGE -> 1
             SeverityLevel.YELLOW -> 2
-            SeverityLevel.GREEN -> 3
+            SeverityLevel.GREY -> 3
+            SeverityLevel.GREEN -> 4
         }
     }
 }
