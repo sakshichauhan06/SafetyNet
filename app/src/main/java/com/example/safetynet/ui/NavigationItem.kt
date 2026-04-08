@@ -3,11 +3,14 @@ package com.example.safetynet.ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SafetyCheck
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AddAlert
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.Map
@@ -32,6 +35,12 @@ sealed class NavigationItem(
     object Incidents : NavigationItem("incidents", "ALERTS", Icons.Filled.NotificationsActive)
     object Connect: NavigationItem("connect", "CONNECT", Icons.Filled.Groups)
     object Profile : NavigationItem("profile", "PROFILE", Icons.Filled.Person)
+
+    object ActivityLog: NavigationItem("activity_log", "Activity Log", Icons.Default.History)
+
+    object Settings: NavigationItem("settings", "Settings", Icons.Default.Settings)
+
+    object SafetyVault: NavigationItem("safety_vault", "Safety Vault", Icons.Default.Lock)
 
     object ManageProfile : NavigationItem("manage_profile", "Manage Profile")
 

@@ -71,6 +71,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -99,6 +100,8 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+
     // get the current route from the backstack
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -122,7 +125,9 @@ fun MainScreen(
             DrawerContent(
                 onClose = { scope.launch { drawerState.close() } },
                 navController = navController,
-//                authViewModel = authViewModel
+                profileViewModel = profileViewModel,
+                mapViewModel = mapViewModel,
+                currentRoute = currentRoute
             )
         }
     ) {
@@ -414,35 +419,6 @@ fun SosButton(onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun DrawerContent(
-    onClose: () -> Unit,
-    navController: NavController
-) {
-    ModalDrawerSheet {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                "SafetyNet",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(vertical = 24.dp)
-            )
-
-            // Menu items
-            NavigationDrawerItem(
-                label = { Text("Profile") },
-                selected = false,
-                onClick = {
-                    navController.navigate(NavigationItem.Profile.route)
-                    onClose()
-                }
-            )
-        }
-    }
-}
 
 
 
