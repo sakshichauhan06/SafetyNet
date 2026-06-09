@@ -71,6 +71,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.room.util.query
 import com.example.safetynet.R
@@ -102,6 +103,7 @@ import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 @Composable
 fun MapScreen(
+    navController: NavController,
     mapViewModel: MapViewModel,
     cameraPositionState: CameraPositionState
 ) {
@@ -112,9 +114,6 @@ fun MapScreen(
     val isLoading by mapViewModel.isLoading
 
     val safetyPins by mapViewModel.safetyPins.collectAsStateWithLifecycle()
-
-    val showDialog by mapViewModel.showDialog
-    val tappedLocation by mapViewModel.tappedLocation
 
     val selectedPin by mapViewModel.selectedPin
 
@@ -280,29 +279,6 @@ fun MapScreen(
         )
     }
 
-    // Show report incident dialog
-    if (showDialog && tappedLocation != null) {
-        ReportIncidentDialog(
-            onDismiss = { mapViewModel.dismissDialog() },
-            onSubmit = { incidentType, details ->
-                val newPin = SafetyPin(
-                    id = java.util.UUID.randomUUID().toString(),
-                    latitude = tappedLocation!!.latitude,
-                    longitude = tappedLocation!!.longitude,
-                    incidentType = incidentType,
-                    severity = incidentType.severity,
-                    shortDescription = incidentType.displayName,
-                    detailedDescription = details.ifEmpty { "No Additional details" },
-                    timestamp = System.currentTimeMillis(),
-                    isAnonymous = true,
-                    userId = currentUserId
-                )
-                mapViewModel.savePin(newPin)
-            }
-        )
-    }
-
-
 
     if (permissionDenied) {
        // show permission required screen
@@ -328,7 +304,7 @@ fun MapScreen(
                 properties = mapProperties,
                 uiSettings = uiSettings,
                 onMapClick = { latLng ->
-                    mapViewModel.onMapTapped(latLng)
+                    navController.navigate("report_incident/${latLng.latitude}/${latLng.longitude}")
                 }
             ) {
                 // user location marker

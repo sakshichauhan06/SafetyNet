@@ -58,7 +58,7 @@ fun DrawerContent(
 
     ModalDrawerSheet(
         drawerContentColor = Color(0xFFF5F5F7),
-        modifier = Modifier.width(250.dp)
+        modifier = Modifier.width(280.dp)
     ) {
         Column(
             modifier = Modifier

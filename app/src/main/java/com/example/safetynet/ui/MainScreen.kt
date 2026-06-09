@@ -74,21 +74,28 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.safetynet.R
 import com.example.safetynet.SplashScreen
+import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.ui.auth.AuthViewModel
 import com.example.safetynet.ui.auth.LoginScreen
 import com.example.safetynet.ui.auth.OtpVerifyScreen
 import com.example.safetynet.ui.auth.PhoneLoginScreen
 import com.example.safetynet.ui.auth.SignupScreen
 import com.example.safetynet.ui.auth.VerifyEmailScreen
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.ktx.model.cameraPosition
+import com.google.type.LatLng
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 
 @Composable
@@ -182,8 +189,45 @@ fun MainScreen(
                 }
                 composable(NavigationItem.Map.route) {
                     MapScreen(
+                        navController = navController,
                         mapViewModel = mapViewModel,
                         cameraPositionState = cameraPositionState)
+                }
+                composable(
+                    route = "report_incident/{lat}/{lng}",
+                    arguments = listOf(
+                        navArgument("lat") { type = NavType.FloatType },
+                        navArgument("lng") { type = NavType.FloatType }
+                    )
+                ) { backStackEntry ->
+                    val lat = backStackEntry.arguments?.getFloat("lat")?.toDouble() ?: 0.0
+                    val lng = backStackEntry.arguments?.getFloat("lng")?.toDouble() ?: 0.0
+
+                    ReportIncidentScreen(
+                        initialLocation = com.google.android.gms.maps.model.LatLng(lat, lng),
+                        onSubmit = { incidentType, severity, details, isAnonymous, finalLocation ->
+                            val newPin = SafetyPin(
+                                id = UUID.randomUUID().toString(),
+                                latitude = finalLocation.latitude,
+                                longitude = finalLocation.longitude,
+                                incidentType = incidentType,
+                                severity = severity,
+                                shortDescription = incidentType.displayName,
+                                detailedDescription = details.ifEmpty { "No Additional details" },
+                                timestamp = System.currentTimeMillis(),
+                                isAnonymous = isAnonymous,
+                                userId = Firebase.auth.currentUser?.uid ?: "anonymous_user"
+                            )
+                            mapViewModel.savePin(newPin)
+                            navController.popBackStack()
+                        },
+                        onCancel = {
+                            navController.popBackStack()
+                        },
+                        onSosClick = {
+                            navController.navigate(NavigationItem.SOS.route)
+                        }
+                    )
                 }
                 composable(NavigationItem.Profile.route) {
                     ProfileScreen(authViewModel, navController)

@@ -5,15 +5,18 @@ com.example.safetynet
 |	|	|--AuthModule
 |	|	|--AuthRepository
 |	|	|--AuthRepositorylmpl
-|	|--Location Repository
+|	|--LocationRepository
 |	|--SafetyPin
 |	|--SafetyPinDao
 |	|--SafetyPinDatabase.kt
 |	|--SafetyPinRepository
 |	|--User
 |	|--UserDao
+|	|--UserPreferences.kt
 |
 |--domain
+|	|--FAQItem
+|	|--Helpline
 |	|--IncidentType
 |	|--NavigationDestination.kt
 |	|--SeverityLevel
@@ -25,23 +28,36 @@ com.example.safetynet
 |	|	|--AuthState
 |	|	|--AuthViewModel
 |	|	|--LoginScreen.kt
+|	|	|--OtpVerifyScreen.kt
+|	|	|--PhoneLoginScreen.kt
 |	|	|--SignupScreen.kt
+|	|	|--VerifyEmailScreen.kt
 |	|--components
 |	|	|--EmptySafetyPinState.kt
 |	|	|--PinDetailsDialog.kt
-|	|	ViewPinDetailsDialog.kt
+|	|	|--SafetySearchBar.kt
+|	|	|--SeverityFilterBar.kt
+|	|	|--ViewPinDetalsDialog.kt
 |	|--theme
 |	|	|--Color.kt
+|	|	|--Modifiers.kt
 |	|	|--Theme.kt
 |	|	|--Type.kt
+|	|
+|	|--DrawerContent.kt
+|	|--FAQScreen.kt
+|	|--HelplineScreen.kt
 |	|--IncidentsScreen.kt
 |	|--MainScreen.kt
+|	|--ManageProfileScreen.kt
 |	|--MapScreen.kt
 |	|--MapViewModel
 |	|--NavigationItem
 |	|--ProfileScreen.kt
+|	|--ProfileViewModel.kt
+|	|--ReportBugScreen.kt
 |	|--ReportIncidentDialog.kt
-|	|--TrackingPulse.kt
+|	|--SOSScreen.kt
 |
 |--usecases
 |	|--DeletePinUseCase
