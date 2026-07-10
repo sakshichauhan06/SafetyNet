@@ -1,6 +1,10 @@
 package com.example.safetynet.ui
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.location.Geocoder
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,24 +20,34 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Emergency
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LightbulbCircle
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,13 +55,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import com.example.safetynet.R
 import com.example.safetynet.domain.IncidentType
 import com.example.safetynet.domain.SeverityLevel
+import com.google.android.gms.maps.GoogleMapOptions
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportIncidentScreen(
     initialLocation: LatLng,
@@ -68,143 +100,194 @@ fun ReportIncidentScreen(
     var showLocationPicker by remember { mutableStateOf(false) }
     var selectedSeverity by remember { mutableStateOf<SeverityLevel?>(null) }
 
+
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-    ) {
-        // Header TopBar
-        SafetyHeaderCard(onSosClick = onSosClick)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Severity Section
-        Text(
-            "RISK SEVERITY",
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.Gray,
-            letterSpacing = 1.sp
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        SeveritySelector(
-            selectedSeverity = selectedSeverity,
-            onSeveritySelected = { selectedSeverity = it }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Anonymous Section
-        AnonymousToggle(
-            isAnonymous = isAnonymous,
-            onToggle = { isAnonymous = it }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Incident Section
-        Text(
-            "INCIDENT DETAILS",
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.Gray,
-            letterSpacing = 1.sp
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = incidentDetails,
-            onValueChange = { incidentDetails = it },
-            placeholder = { Text("Describe what happened...") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFF5F5F7),
-                focusedContainerColor = Color(0xFFF5F5F7)
-            )
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Location Section
-        IncidentLocationSection(
-            location = selectedLocation,
-            onChangeLocation = { showLocationPicker = true }
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Buttons Section
-        Button(
-            onClick = {
-                selectedIncident?.let { incident ->
-                    // Map severity to incident type or use separate incident type selector
-                    onSubmit(incident, selectedSeverity!!, incidentDetails, isAnonymous, selectedLocation)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Report Incident",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Black,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onCancel) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    SosButton(onClick = onSosClick)
                 }
-            },
-            enabled = selectedSeverity != null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(28.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF1A237E)
             )
-        ) {
-            Text("Submit Report", fontWeight = FontWeight.Bold)
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedButton(
-            onClick = onCancel,
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(28.dp)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .background(Color(0xFFF6FAFF))
+                .padding(18.dp)
+                .padding(paddingValues)
         ) {
-            Text("Cancel", color = Color(0xFF1A237E))
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-        // Guidelines section
-        Text(
-            text = "BY SUBMITTING, YOU AGREE TO OUR COMMUNITY GUIDELINES",
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.Gray,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 911 fallback
-        TextButton(
-            onClick = { /* Launch dialer with 911 */ },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
             Text(
-                "Immediate danger? Call 911",
-                color = Color(0xFFB00020),
-                fontWeight = FontWeight.Bold
+                text = "Your report helps keep the community safe.",
+                color = Color(0xFF44474E),
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium,
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Header TopBar
+            StayCalmCard(onSosClick = onSosClick)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Severity Section
+            Text(
+                "RISK SEVERITY",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray,
+                letterSpacing = 1.sp
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            SeveritySelector(
+                selectedSeverity = selectedSeverity,
+                onSeveritySelected = { selectedSeverity = it }
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // Anonymous Section
+            AnonymousToggle(
+                isAnonymous = isAnonymous,
+                onToggle = { isAnonymous = it }
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // Incident Section
+            Text(
+                "INCIDENT DETAILS",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray,
+                letterSpacing = 1.sp
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextField(
+                value = incidentDetails,
+                onValueChange = { incidentDetails = it },
+                placeholder = { Text("Describe what happened...", color = Color(0xFF74777F).copy(alpha = 0.5f)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFE4E9ED),
+                    unfocusedContainerColor = Color(0xFFE4E9ED),
+                    disabledContainerColor = Color(0xFFE4E9ED),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                )
+//                colors = TextFieldDefaults.colors(Color(0xFFE4E9ED))
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // Location Section
+            IncidentLocationSection(
+                location = selectedLocation,
+                onChangeLocation = { showLocationPicker = true }
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Buttons Section
+            Button(
+                onClick = {
+                    selectedIncident?.let { incident ->
+                        // Map severity to incident type or use separate incident type selector
+                        onSubmit(incident, selectedSeverity!!, incidentDetails, isAnonymous, selectedLocation)
+                    }
+                },
+                enabled = selectedSeverity != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black
+                )
+            ) {
+                Text("Submit Report", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Text("Cancel", color = Color.Black)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Guidelines section
+            Text(
+                text = "BY SUBMITTING, YOU AGREE TO OUR COMMUNITY GUIDELINES",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 911 fallback
+            TextButton(
+                onClick = { /* Launch dialer with 911 */ },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(
+                    "Immediate danger? Call 911",
+                    color = Color(0xFFB00020),
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
 
 @Composable
-fun SafetyHeaderCard(onSosClick: () -> Unit) {
+fun StayCalmCard(onSosClick: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = Color(0xFF1A237E),
+        shape = RoundedCornerShape(28.dp),
+        color = Color(0xFF001B3D),
         modifier = Modifier.fillMaxWidth()
     ) {
+
         Row(
             modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.Top
@@ -213,12 +296,12 @@ fun SafetyHeaderCard(onSosClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color.White.copy(alpha = 0.2f),
-                        RoundedCornerShape(12.dp)),
+                    .background(Color(0xFFB00020),
+                        RoundedCornerShape(20.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.LightbulbCircle,
+                    imageVector = Icons.Default.Lightbulb,
                     contentDescription = null,
                     tint = Color.White
                 )
@@ -234,23 +317,26 @@ fun SafetyHeaderCard(onSosClick: () -> Unit) {
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
                     text = "Find a secure location before completing this report. " +
                             "If you are in immediate danger, user the SOS button above.",
-                    color = Color.White.copy(alpha = 0.8f),
-                    style = MaterialTheme.typography.bodySmall
+                    color = Color(0xFF6F84AC),
+                    style = MaterialTheme.typography.bodyMedium
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                TextButton(
-                    onClick = onSosClick,
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFE57373))
-                ) {
-                    Text("Use SOS →", fontWeight = FontWeight.Bold)
-                }
+                Text(
+                    text = "Use SOS →",
+                    color = Color(0xFFE57373),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .clickable(onClick = onSosClick)
+                        .padding(vertical = 4.dp),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }
@@ -269,7 +355,7 @@ fun SeveritySelector(
         val severities = listOf(
             SeverityLevel.RED to "CRITICAL",
             SeverityLevel.YELLOW to "MEDIUM",
-            SeverityLevel.GREEN to "LOW"
+            SeverityLevel.GREY to "LOW"
         )
 
         severities.forEach { (severity, label) ->
@@ -277,13 +363,13 @@ fun SeveritySelector(
             val color = when(severity) {
                 SeverityLevel.RED -> Color(0xFFEB2A3A)
                 SeverityLevel.YELLOW -> Color(0xFFF1C40F)
-                SeverityLevel.GREEN -> Color(0xFF2ECC71)
+                SeverityLevel.GREY -> Color(0xFF74777F)
                 else -> Color.Gray
             }
 
             Surface(
                 onClick = { onSeveritySelected(severity) },
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(24.dp),
                 color = if (isSelected) color.copy(alpha = 0.15f) else Color.White,
                 border = androidx.compose.foundation.BorderStroke(
                     width = if (isSelected) 2.dp else 1.dp,
@@ -298,20 +384,18 @@ fun SeveritySelector(
                     // Icon
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
-                            .background(color.copy(alpha = 0.2f),
-                                RoundedCornerShape(8.dp)),
+                            .size(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = when(severity) {
-                                SeverityLevel.RED -> Icons.Default.Warning
+                                SeverityLevel.RED -> Icons.Default.Emergency
                                 SeverityLevel.YELLOW -> Icons.Default.Warning
                                 else -> Icons.Default.Info
                             },
                             contentDescription = null,
                             tint = color,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(34.dp)
                         )
                     }
 
@@ -333,8 +417,8 @@ fun SeveritySelector(
 @Composable
 fun AnonymousToggle(isAnonymous: Boolean, onToggle: (Boolean) -> Unit) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White,
+        shape = RoundedCornerShape(24.dp),
+        color = Color(0xFFF0F4F9),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -344,7 +428,7 @@ fun AnonymousToggle(isAnonymous: Boolean, onToggle: (Boolean) -> Unit) {
             Icon(
                 imageVector = Icons.Default.VisibilityOff,
                 contentDescription = null,
-                tint = Color(0xFF1A237E)
+                tint = Color.Black
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -354,11 +438,15 @@ fun AnonymousToggle(isAnonymous: Boolean, onToggle: (Boolean) -> Unit) {
             ) {
                 Text(
                     "Anonymous Report",
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.labelLarge
                 )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
                 Text(
                     "Hide you identity from others",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.Gray
                 )
             }
@@ -367,8 +455,8 @@ fun AnonymousToggle(isAnonymous: Boolean, onToggle: (Boolean) -> Unit) {
                 checked = isAnonymous,
                 onCheckedChange = onToggle,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF1A237E),
-                    checkedTrackColor = Color(0xFF1A237E).copy(alpha = 0.5f)
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = Color.Black
                 )
             )
         }
@@ -377,13 +465,26 @@ fun AnonymousToggle(isAnonymous: Boolean, onToggle: (Boolean) -> Unit) {
 
 @Composable
 fun IncidentLocationSection(location: LatLng, onChangeLocation: () -> Unit) {
+    val context = LocalContext.current
+    var addressText by remember(location) {
+        mutableStateOf("${location.latitude}, ${location.longitude}")
+    }
+
+    LaunchedEffect(location) {
+        try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            addressText = addresses?.firstOrNull()?.getAddressLine(0) ?: addressText
+        } catch (_: Exception) { }
+    }
+
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "INCIDENT LOCATION",
+                "LOCATION CONFIRMATION",
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Gray,
                 letterSpacing = 1.sp,
@@ -394,9 +495,9 @@ fun IncidentLocationSection(location: LatLng, onChangeLocation: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.LocationOn,
+                    imageVector = Icons.Default.MyLocation,
                     contentDescription = null,
-                    tint = Color(0xFF2ECC71),
+                    tint = Color.Black,
                     modifier = Modifier.size(16.dp)
                 )
 
@@ -404,40 +505,68 @@ fun IncidentLocationSection(location: LatLng, onChangeLocation: () -> Unit) {
 
                 Text(
                     text = "GPS Active",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color(0xFF2ECC71)
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.Black
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Map snippet placeholder
+
+        // Interactive map
+        val cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(location, 15f)
+        }
+        val context = LocalContext.current
+        val markerIcon = remember(context) {
+            try {
+                ContextCompat.getDrawable(context, R.drawable.marker)?.toBitmap()?.let { bitmap ->
+                    // Resize to desired dimensions (width, height in pixels)
+                    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 160, 160, false)
+                    BitmapDescriptorFactory.fromBitmap(scaledBitmap)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = Color(0xFFE8EAF6),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
-            Box(
-                contentAlignment = Alignment.Center
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+//                properties = MapProperties(),
+                googleMapOptionsFactory = {
+                    GoogleMapOptions().mapId("d2224b87c7462b956e6b738b")
+                },
+                uiSettings = MapUiSettings(
+                    zoomControlsEnabled = false,
+                    scrollGesturesEnabled = false,
+                    zoomGesturesEnabled = false,
+                    tiltGesturesEnabled = false,
+                    rotationGesturesEnabled = false,
+                    compassEnabled = false,
+                    mapToolbarEnabled = false
+                ),
+                onMapClick = { onChangeLocation() }
             ) {
-                Text("Map Preview\n${location.latitude}, ${location.longitude}")
-
-                // Pin in center
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = Color(0xFF1A237E),
-                    modifier = Modifier.size(40.dp)
+                Marker(
+                    state = rememberMarkerState(position = location),
+                    icon = markerIcon,
+                    title = "Incident Location"
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Selected location address
+        // Address card
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
@@ -451,37 +580,53 @@ fun IncidentLocationSection(location: LatLng, onChangeLocation: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = Color(0xFF1A237E)
+                    tint = Color.Black
                 )
 
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "SELECTED LOCATION",
+                        text = addressText,
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF1A237E),
+                        color = Color.Black,
                         fontWeight = FontWeight.Bold
                     )
-                    Text(
-                        "${location.latitude}, ${location.longitude}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
                 }
-
                 Button(
                     onClick = onChangeLocation,
                     shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1A237E)
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                 ) {
-                    Text("Change")
+                    Text(
+                        text = "EDIT",
+                        style = MaterialTheme.typography.labelMedium
+                    )
                 }
             }
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
