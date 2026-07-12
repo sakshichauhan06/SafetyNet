@@ -349,8 +349,22 @@ class MapViewModel @Inject constructor (
         _tappedLocation.value = null
     }
 
-    fun onPinSelected(pin: SafetyPin) {
-        _selectedPin.value = pin
+
+    fun findPinById(pinId: String): SafetyPin? {
+        return safetyPins.value.find { it.id == pinId }
+    }
+
+    fun deletePinById(pinId: String) {
+        viewModelScope.launch {
+            deletePinUseCase(pinId)
+                .onSuccess {
+                    Timber.d("Pindeleted successfully")
+                }
+                .onFailure { exception ->
+                    _errorMessage.value = "Failed to delete pin: ${exception.message}"
+                    Timber.e(exception, "Failed to delete pin")
+                }
+        }
     }
 
     fun onPinDetailsDialogDismiss() {

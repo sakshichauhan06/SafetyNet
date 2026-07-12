@@ -79,7 +79,6 @@ import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.ui.MapViewModel
 import com.example.safetynet.ui.ReportIncidentDialog
 import com.example.safetynet.ui.components.EmptySafetyPinState
-import com.example.safetynet.ui.components.ViewPinDetailsDialog
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -90,6 +89,7 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.safetynet.domain.SeverityLevel
 import com.example.safetynet.ui.TopBar
+import com.example.safetynet.ui.ViewPinDetailsScreen
 import com.example.safetynet.ui.components.SafetySearchBar
 import com.example.safetynet.ui.components.SeverityFilterBar
 import timber.log.Timber
@@ -114,8 +114,6 @@ fun MapScreen(
     val isLoading by mapViewModel.isLoading
 
     val safetyPins by mapViewModel.safetyPins.collectAsStateWithLifecycle()
-
-    val selectedPin by mapViewModel.selectedPin
 
     val errorMessage by mapViewModel.errorMessage
 
@@ -237,17 +235,6 @@ fun MapScreen(
         }
     }
 
-    // Show view pin details dialog
-    selectedPin?.let { pin ->
-        ViewPinDetailsDialog(
-            pin = pin,
-            onDismiss = { mapViewModel.onPinDetailsDialogDismiss() },
-            onDelete = {
-                mapViewModel.onDeleteClicked()
-            }
-        )
-    }
-
     // Delete Confirmation Dialog
     if(showDeleteConfirmation) {
         androidx.compose.material3.AlertDialog(
@@ -329,7 +316,7 @@ fun MapScreen(
                             severity = pin.severity,
                             title = pin.shortDescription,
                             onMarkerClick = {
-                                mapViewModel.onPinSelected(pin)
+                                navController.navigate("pin_details/${pin.id}")
                             }
                         )
                     }

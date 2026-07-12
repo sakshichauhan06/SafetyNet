@@ -229,6 +229,30 @@ fun MainScreen(
                         }
                     )
                 }
+                composable(
+                    route = "pin_details/{pinId}",
+                    arguments = listOf(navArgument("pinId") { type = NavType.StringType })
+                ){ backStackEntry ->
+                    val pinId = backStackEntry.arguments?.getString("pinId") ?: ""
+
+                    // Find pin from ViewModel
+                    val pin = mapViewModel.findPinById(pinId)
+
+                    if (pin != null) {
+                        ViewPinDetailsScreen(
+                            pin = pin,
+                            onCancel = { navController.popBackStack() },
+                            onSosClick = { navController.navigate(NavigationItem.SOS.route) },
+                            onDelete = {
+                                mapViewModel.deletePinById(pinId)
+                                navController.popBackStack()
+                            }
+                        )
+                    } else {
+                        // Pin deleted or not found, go back
+                        navController.popBackStack()
+                    }
+                }
                 composable(NavigationItem.Profile.route) {
                     ProfileScreen(authViewModel, navController)
                 }
