@@ -1,18 +1,24 @@
 package com.example.safetynet.ui
 
+import androidx.compose.foundation.Image
+import com.example.safetynet.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,13 +28,19 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import com.example.safetynet.data.SafetyPin
 import com.example.safetynet.domain.SeverityLevel
+import com.example.safetynet.ui.components.StatusTimeline
+import com.example.safetynet.ui.components.TimelineEvent
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -51,7 +63,7 @@ fun ViewPinDetailsScreen(
                         text = "Incident Details",
                         color = Color.Black,
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium
                     )
                 },
                 navigationIcon = {
@@ -73,11 +85,9 @@ fun ViewPinDetailsScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .background(Color(0xFFF6FAFF))
-                .padding(18.dp)
+                .padding(vertical = 8.dp, horizontal = 24.dp)
                 .padding(paddingValues)
         ) {
-            Spacer(modifier = Modifier.height(4.dp))
-
             val baseSeverityColor = try {
                 Color(pin.severity.colorHex.toColorInt())
             } catch (e: Exception) {
@@ -91,7 +101,9 @@ fun ViewPinDetailsScreen(
             }
 
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // Tags
                 Surface(
@@ -107,28 +119,123 @@ fun ViewPinDetailsScreen(
                     )
                 }
 
-//        Spacer(modifier = Modifier.height(8.dp))
-
                 // Timestamp
-                val formattedDate = SimpleDateFormat("MMM D, YYYY", Locale.getDefault()).format(Date(pin.timestamp))
-                val formattedTime = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(pin.timestamp))
-                Text(
-                    text = "$formattedDate at $formattedTime",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.CalendarToday,
+                        contentDescription = "Incident Reported Date",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(11.dp)
+                    )
+
+                    val formattedDate = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(pin.timestamp))
+                    val formattedTime = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(pin.timestamp))
+                    Text(
+                        text = "$formattedDate  •  $formattedTime",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Incident Title
+            Text(
+                text = pin.shortDescription,
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
             // Map Image
+            Image(
+                painter = painterResource(id = R.drawable.location_placeholder),
+                contentDescription = "Location Placeholder",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(36.dp))
+                    .padding(4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Incident Details
-            // Detailed Info
+            Text(
+                text = "REPORT OVERVIEW",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = pin.detailedDescription,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Status Timeline
-            // Download Report Button
-            // Contact Lead Investigator Button
-            // Delete Button
+            val timelineEvents = listOf(
+                TimelineEvent(
+                    title = "Reported",
+                    description = "Incident logged and broadcast to local network.",
+                    timestamp = pin.timestamp,
+                    isCompleted = true
+                ),
+                TimelineEvent(
+                    title = "Under Review",
+                    description = "Community moderators are verifying the report details.",
+                    timestamp = pin.timestamp + 3600000,
+                    isCompleted = false
+                ),
+                TimelineEvent(
+                    title = "Resolved",
+                    description = "Incident marked as closed by the reporter.",
+                    timestamp = 0,
+                    isCompleted = false
+                )
+            )
+            StatusTimeline(
+                events = timelineEvents,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Buttons
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                // Download Report Button
+                Button(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Text("Download Report")
+                }
+
+                // Contact Lead Investigator Button
+                Button(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Text("Contact Lead Investigator")
+                }
+
+                // Delete Button
+                Button(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Text("Delete")
+                }
+            }
         }
     }
 }
