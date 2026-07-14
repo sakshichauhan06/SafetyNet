@@ -1,5 +1,10 @@
 package com.example.safetynet.ui
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import com.example.safetynet.R
 import androidx.compose.foundation.background
@@ -30,15 +35,22 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,6 +62,10 @@ import com.example.safetynet.ui.components.TimelineEvent
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.net.toUri
+import com.example.safetynet.utils.IncidentPdfGenerator
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,8 +76,13 @@ fun ViewPinDetailsScreen(
     onDelete: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -220,7 +241,17 @@ fun ViewPinDetailsScreen(
             // Buttons
             // Download Report Button
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    coroutineScope.launch {
+                        IncidentPdfGenerator.generateIncidentPdf(context, pin)
+                            .onSuccess { path ->
+                                snackbarHostState.showSnackbar("PDF saved to Downloads")
+                            }
+                            .onFailure { e ->
+                                snackbarHostState.showSnackbar("Failed: ${e.message}")
+                            }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -248,7 +279,14 @@ fun ViewPinDetailsScreen(
 
             // Contact Support Button
             OutlinedButton (
-                onClick = { /*TODO*/ },
+                onClick = {
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = "mailto:".toUri()
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("support@safetynet.app"))
+                        putExtra(Intent.EXTRA_SUBJECT, "SafetyNet Support - Incident #${pin.id.take(8)}")
+                    }
+                    context.startActivity(intent)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -261,7 +299,7 @@ fun ViewPinDetailsScreen(
                     Icon(
                         imageVector = Icons.Outlined.Email,
                         contentDescription = "Contact Support",
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
 
@@ -273,7 +311,18 @@ fun ViewPinDetailsScreen(
 
             // Delete Button
             OutlinedButton (
-                onClick = { /*TODO*/ },
+                onClick = {
+                    coroutineScope.launch {
+                        val result = snackbarHostState.showSnackbar(
+                            message = "Delete this incident?",
+                            actionLabel = "Confirm",
+                            duration = SnackbarDuration.Short
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            onDelete()
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
