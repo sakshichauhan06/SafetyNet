@@ -4,7 +4,15 @@ import android.R
 import android.content.Intent
 import android.net.Uri
 import android.widget.Button
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +21,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,20 +45,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.net.toUri
 import com.example.safetynet.ui.theme.safeContentPadding
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SOSScreen(
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    onCancel: () -> Unit
 ) {
     val user by viewModel.currentUser.collectAsState()
     val context = LocalContext.current
@@ -73,89 +97,237 @@ fun SOSScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (!isTimerRunning) {
-            Text(
-                text = "EMERGENCY SOS",
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Black,
-                color = Color.Red
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "Press the button below to call your emergency contact: $contactName",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = {
-                    if (phoneNumber.isNotEmpty()) {
-                        isTimerRunning = true
-                    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "SafetyNet",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 },
-                modifier = Modifier.size(200.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                navigationIcon = {
+                    IconButton(onClick = onCancel) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+                .padding(24.dp)
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // System active tag
+            Surface(
+                color = Color.Gray.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "SOS",
-                    color = Color.White,
-                    fontSize = 44.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "System Active & Monitoring",
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.DarkGray,
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
-        } else {
-            // Countdown UI
-            Text(
-                text = "CALLING $contactName IN...",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold
-            )
 
-            Text(
-                text = "$timeLeft",
-                fontSize = 120.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.Red
-            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(40.dp))
+            if (!isTimerRunning) {
+                Text(
+                    text = "Need Help?",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Black,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-            // The "I'm Safe" / Cancel button
-            Button(
-                onClick = {
-                    isTimerRunning = false
-                    timeLeft = 5
-                },
-                modifier = Modifier.fillMaxWidth().height(60.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-            ) {
-                Text("CANCEL (I'M SAFE)", fontSize = 18.sp)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Press the button below to call your emergency contact: $contactName",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.DarkGray
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                PulsingSOSButton(
+                    onClick = {
+                        if (phoneNumber.isNotEmpty()) {
+                            isTimerRunning = true
+                        }
+                    }
+                )
+
+                // Helpers
+            } else {
+                // Countdown UI
+                Text(
+                    text = "CALLING $contactName IN...",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "$timeLeft",
+                    fontSize = 120.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Red
+                )
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // The "I'm Safe" / Cancel button
+                Button(
+                    onClick = {
+                        isTimerRunning = false
+                        timeLeft = 5
+                    },
+                    modifier = Modifier.fillMaxWidth().height(60.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                ) {
+                    Text("CANCEL (I'M SAFE)", fontSize = 18.sp)
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        if (phoneNumber.isEmpty()) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "No contact number found. Please add one in 'Manage Profile'",
-                color = Color.Gray,
-                textAlign = TextAlign.Center
-            )
+            if (phoneNumber.isEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "No contact number found. Please add one in 'Manage Profile'",
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
+
+@Composable
+fun PulsingSOSButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val buttonSize = 260.dp
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val rings = listOf(0f, 0.33f, 0.66f) // Three rings with staggered delays
+
+    // Box to contain button + rings
+    Box(
+        modifier = modifier.size(buttonSize),
+        contentAlignment = Alignment.Center
+    ) {
+        // Rings behind button
+        rings.forEachIndexed { index, delayFraction ->
+            val delay = (delayFraction * 2000).toInt() // 2 second cycle
+
+            val scale by infiniteTransition.animateFloat(
+                initialValue = 1f,
+                targetValue = 2.5f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = 2000,
+                        delayMillis = delay,
+                        easing = FastOutSlowInEasing
+                    ),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "scale_$index"
+            )
+
+            val alpha by infiniteTransition.animateFloat(
+                initialValue = 0.6f,
+                targetValue = 0f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = 2000,
+                        delayMillis = delay,
+                        easing = LinearEasing
+                    ),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "alpha_$index"
+            )
+
+            // Ring surface
+            Surface(
+                modifier = Modifier
+                    .size(buttonSize)
+                    .scale(scale)
+                    .alpha(alpha)
+                    .zIndex(0f), // Behind button
+                shape = CircleShape,
+                color = Color(0xFFBA002C).copy(alpha = 0.3f),
+                border = androidx.compose.foundation.BorderStroke(
+                    2.dp,
+                    Color(0xFFBA002C).copy(alpha = 0.5f)
+                )
+            ) { }
+        }
+
+        // Actual button on top
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .size(buttonSize)
+                .zIndex(1f),
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBA002C)),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Phone,
+                    contentDescription = "Call Phone",
+                    tint = Color.White,
+                    modifier = Modifier.size(84.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "CALL HELPLINE",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "IMMEDIATE ASSISTANCE",
+                    color = Color.White,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -263,7 +263,7 @@ fun MainScreen(
                     HelplineScreen(navController)
                 }
                 composable(NavigationItem.SOS.route) {
-                    SOSScreen()
+                    SOSScreen( onCancel = { navController.popBackStack() })
                 }
                 composable(NavigationItem.ReportBug.route) {
                     ReportBugScreen(navController)
