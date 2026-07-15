@@ -11,20 +11,29 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,6 +77,7 @@ fun SOSScreen(
 ) {
     val user by viewModel.currentUser.collectAsState()
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     // Get data from ROOM
     val contactName = user?.emergencyContactName ?: "Emergency Contact"
@@ -122,6 +132,7 @@ fun SOSScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .safeContentPadding()
                 .padding(24.dp)
                 .padding(paddingValues),
@@ -132,13 +143,24 @@ fun SOSScreen(
                 color = Color.Gray.copy(alpha = 0.12f),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text(
-                    text = "System Active & Monitoring",
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.DarkGray,
-                    fontWeight = FontWeight.ExtraBold
-                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(color = Color.Red, shape = CircleShape)
+                            .size(6.dp)
+                    ) {}
+
+                    Text(
+                        text = "System Active & Monitoring",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -171,7 +193,176 @@ fun SOSScreen(
                     }
                 )
 
+                Spacer(modifier = Modifier.height(32.dp))
+
                 // Helpers
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    //Quick SOS Alert
+                    Surface(
+                        color = Color.Gray.copy(alpha = 0.05f),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.size(width = 280.dp, height = 80.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .background(color = Color(0xFFFFDAD8), shape = CircleShape)
+                                    .padding(6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.NotificationsActive,
+                                    contentDescription = "Alert Option",
+                                    tint = Color(0xFF7E0411),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column() {
+                                Text(
+                                    text = "Quick SOS Alert",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = Color.DarkGray,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+
+                                Text(
+                                    text = "Notify 5 trusted Contacts Instantly",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Nearby Safe Havens
+                    Surface(
+                        color = Color.Gray.copy(alpha = 0.05f),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.size(width = 280.dp, height = 80.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .background(color = Color(0xFFEBDCFF), shape = CircleShape)
+                                    .padding(6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Shield,
+                                    contentDescription = "Shields",
+                                    tint = Color(0xFF260058),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column() {
+                                Text(
+                                    text = "Nearby Save Havens",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = Color.DarkGray,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+
+                                Text(
+                                    text = "Police, Hospitals, Shelters",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Recording
+                    Surface(
+                        color = Color.Gray.copy(alpha = 0.05f),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.size(width = 280.dp, height = 80.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .background(color = Color(0xFFE8E8EA), shape = CircleShape)
+                                    .padding(6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Mic,
+                                    contentDescription = "Record",
+                                    tint = Color(0xFF000666),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column() {
+                                Text(
+                                    text = "Stealth Recording",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = Color.DarkGray,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+
+                                Text(
+                                    text = "Background audio evidence",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Location tag
+                Surface(
+                    color = Color.Gray.copy(alpha = 0.12f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row() {
+                        Icon(
+                            imageVector = Icons.Filled.LocationOn,
+                            contentDescription = "Location",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(2.dp))
+
+                        Text(
+                            text = "YOUR LOCATION IS BEING BROADCASTED",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.DarkGray,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+
             } else {
                 // Countdown UI
                 Text(
