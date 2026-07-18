@@ -42,6 +42,8 @@ sealed class NavigationItem(
 
     object SafetyVault: NavigationItem("safety_vault", "Safety Vault", Icons.Default.Lock)
 
+    object ManageContacts: NavigationItem("manage_contacts", "Contacts", Icons.Default.People)
+
     object ManageProfile : NavigationItem("manage_profile", "Manage Profile")
 
     object Helpline : NavigationItem("helpline", "Helpline")

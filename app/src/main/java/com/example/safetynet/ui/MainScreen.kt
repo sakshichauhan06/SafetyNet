@@ -253,6 +253,11 @@ fun MainScreen(
                         navController.popBackStack()
                     }
                 }
+                composable("manage_contacts") {
+                    ManageContactsScreen(
+                        onBack = {navController.popBackStack()}
+                    )
+                }
                 composable(NavigationItem.Profile.route) {
                     ProfileScreen(authViewModel, navController)
                 }
@@ -263,7 +268,11 @@ fun MainScreen(
                     HelplineScreen(navController)
                 }
                 composable(NavigationItem.SOS.route) {
-                    SOSScreen( onCancel = { navController.popBackStack() })
+                    SOSScreen(
+                        navController = navController,
+                        mapViewModel = mapViewModel,
+                        onCancel = { navController.popBackStack() }
+                    )
                 }
                 composable(NavigationItem.ReportBug.route) {
                     ReportBugScreen(navController)

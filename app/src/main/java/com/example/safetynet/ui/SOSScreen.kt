@@ -1,9 +1,7 @@
 package com.example.safetynet.ui
 
-import android.R
 import android.content.Intent
-import android.net.Uri
-import android.widget.Button
+import androidx.compose.material3.Button
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -12,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,15 +31,17 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,6 +52,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +60,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -66,18 +67,27 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.net.toUri
+import androidx.navigation.NavController
 import com.example.safetynet.ui.theme.safeContentPadding
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SOSScreen(
+    navController: NavController,
+    mapViewModel: MapViewModel,
     viewModel: ProfileViewModel = hiltViewModel(),
+    sosViewModel: SOSViewModel = hiltViewModel(),
     onCancel: () -> Unit
 ) {
     val user by viewModel.currentUser.collectAsState()
+    val userLocation by mapViewModel.userLocation
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val sosState by sosViewModel.sosState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     // Get data from ROOM
     val contactName = user?.emergencyContactName ?: "Emergency Contact"
@@ -95,7 +105,7 @@ fun SOSScreen(
                 timeLeft--
             }
             // When timer hits 0, trigger the call
-            if (phoneNumber.isNotEmpty()) {
+            if (isTimerRunning && phoneNumber.isNotEmpty()) {
                 val intent = Intent(Intent.ACTION_DIAL).apply {
                     data = "tel:$phoneNumber".toUri()
                 }
@@ -107,7 +117,39 @@ fun SOSScreen(
         }
     }
 
+    LaunchedEffect(sosState) {
+        when (val state = sosState) {
+            is SOSState.Sending -> {
+                // optional later but show loading indicator
+            }
+            is SOSState.Success -> {
+                // Show share sheet for non-app contacts
+                if (state.nonAppContacts.isNotEmpty()) {
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, state.message)
+                    }
+                    context.startActivity(
+                        Intent.createChooser(shareIntent, "Share SOS via...")
+                    )
+                }
+
+                // Show success snackbar
+                snackbarHostState.showSnackbar(
+                    "Sent ${state.appNotificationSent} app alerts. Share with others manually."
+                )
+                sosViewModel.resetState()
+            }
+            is SOSState.Error -> {
+                snackbarHostState.showSnackbar(state.message)
+                sosViewModel.resetState()
+            }
+            else -> {}
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -123,6 +165,17 @@ fun SOSScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate("manage_contacts")
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.People,
+                            contentDescription = "Manage Contacts",
+                            tint = Color(0xFF1A237E)
                         )
                     }
                 }
@@ -193,17 +246,43 @@ fun SOSScreen(
                     }
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
                 // Helpers
                 Column(
-                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
                 ) {
                     //Quick SOS Alert
                     Surface(
                         color = Color.Gray.copy(alpha = 0.05f),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.size(width = 280.dp, height = 80.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp)
+                            .clickable{
+                                val location = userLocation
+
+                                if (location == null) {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Location not available. Please enable GPS.")
+                                    }
+                                    return@clickable
+                                }
+
+                                if (user == null) {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("User not logged in.")
+                                    }
+                                    return@clickable
+                                }
+
+                                sosViewModel.sendSOSAlert(
+                                    userName = user?.name ?: "Someone",
+                                    location = location
+                                )
+                            }
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.Center,
@@ -223,7 +302,7 @@ fun SOSScreen(
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
-                            Column() {
+                            Column {
                                 Text(
                                     text = "Quick SOS Alert",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -249,7 +328,9 @@ fun SOSScreen(
                     Surface(
                         color = Color.Gray.copy(alpha = 0.05f),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.size(width = 280.dp, height = 80.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp)
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.Center,
@@ -269,9 +350,9 @@ fun SOSScreen(
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
-                            Column() {
+                            Column {
                                 Text(
-                                    text = "Nearby Save Havens",
+                                    text = "Nearby Safe Havens",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = Color.DarkGray,
@@ -283,7 +364,7 @@ fun SOSScreen(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = Color.Gray,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -295,7 +376,9 @@ fun SOSScreen(
                     Surface(
                         color = Color.Gray.copy(alpha = 0.05f),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.size(width = 280.dp, height = 80.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp)
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.Center,
@@ -315,7 +398,7 @@ fun SOSScreen(
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
-                            Column() {
+                            Column {
                                 Text(
                                     text = "Stealth Recording",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -329,29 +412,34 @@ fun SOSScreen(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = Color.Gray,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // Location tag
                 Surface(
                     color = Color.Gray.copy(alpha = 0.12f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.height(36.dp)
                 ) {
-                    Row() {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.LocationOn,
                             contentDescription = "Location",
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(16.dp)
                         )
 
-                        Spacer(modifier = Modifier.width(2.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
 
                         Text(
                             text = "YOUR LOCATION IS BEING BROADCASTED",
@@ -423,7 +511,7 @@ fun PulsingSOSButton(
     ) {
         // Rings behind button
         rings.forEachIndexed { index, delayFraction ->
-            val delay = (delayFraction * 2000).toInt() // 2 second cycle
+            val delay = (delayFraction * 2000).toInt() // 2-second cycle
 
             val scale by infiniteTransition.animateFloat(
                 initialValue = 1f,
