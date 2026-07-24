@@ -17,6 +17,8 @@ import com.example.safetynet.ui.auth.AuthViewModel
 import com.example.safetynet.ui.theme.SafetyNetTheme
 import dagger.hilt.android.AndroidEntryPoint
 import android.Manifest
+import com.example.safetynet.utils.SOSAlertListener
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -25,9 +27,15 @@ class MainActivity : ComponentActivity() {
     private val mapViewModel: MapViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
 
+    @Inject
+    lateinit var sosAlertListener: SOSAlertListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Start listening for SOS alerts
+        sosAlertListener.stopListening()
 
         // ------- Permission Check ---------
         requestAppPermissions()
@@ -43,6 +51,11 @@ class MainActivity : ComponentActivity() {
                 MainScreen(mapViewModel, authViewModel)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sosAlertListener.stopListening()
     }
 
     private fun requestAppPermissions() {

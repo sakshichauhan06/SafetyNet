@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -158,26 +159,16 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signup(email: String, password: String) {
-        val trimmedEmail = email.trim()
-        _authState.value = AuthState.Loading
-
-        firebaseAuth.createUserWithEmailAndPassword(trimmedEmail, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // Send Verification immediately
-                    firebaseAuth.currentUser?.sendEmailVerification()
-                        ?.addOnCompleteListener { emailTask ->
-                            if (emailTask.isSuccessful) {
-                                _authState.value = AuthState.Unauthenticated
-                            } else {
-                                _authState.value = AuthState.Error("Account created, but faied to send verification email")
-                            }
-                        }
-                } else {
-                    _authState.value = AuthState.Error(task.exception?.message ?: "Signup Failed")
+    fun signup(email: String, password: String, name: String, phoneNumber: String) {
+        viewModelScope.launch {
+            repository.signupUser(email.trim(), password, name, phoneNumber).collect{ result ->
+                when (result) {
+                    is Resource.Loading -> _authState.value = AuthState.Loading
+                    is Resource.Success -> _authState.value = AuthState.Authenticated // Later need to implement Verify Email
+                    is Resource.Error -> _authState.value = AuthState.Error(result.message ?: "Signup Failed")
                 }
             }
+        }
     }
 
     fun isEmailValid(email: String): Boolean {

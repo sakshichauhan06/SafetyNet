@@ -29,6 +29,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.LockPerson
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -37,13 +39,17 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -74,6 +80,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(
     authViewModel: AuthViewModel,
@@ -81,8 +88,11 @@ fun SignupScreen(
 ) {
 
     // ----------------- State Management ------------------
+    var name by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
     val authState = authViewModel.authState.collectAsState()
     val context = LocalContext.current
@@ -90,6 +100,7 @@ fun SignupScreen(
     val isChecked = remember { mutableStateOf(false) }
 
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var isConfirmPasswordVisible by remember { mutableStateOf(false) }
 
     // ------------------- Google Sign-in Launcher ---------------
     val gso = remember {
@@ -130,40 +141,45 @@ fun SignupScreen(
     }
 
     // --------------------- UI Layout ---------------------
-    Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = com.example.safetynet.R.drawable.ellipse_logo),
+                            contentDescription = "SafetyNet Logo",
+                            modifier = Modifier
+                                .width(45.dp)
+                                .height(33.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = "SafetyNet",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF001B3D)
+                        )
+
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFF6FAFF)
+                )
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF6FAFF))
+                .padding(paddingValues)
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ----------------- Branding Section --------------
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = com.example.safetynet.R.drawable.ellipse_logo),
-                    contentDescription = "SafetyNet Logo",
-                    modifier = Modifier
-                        .width(45.dp)
-                        .height(33.dp)
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    text = "SafetyNet",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF001B3D)
-                )
-            }
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Column(
@@ -189,12 +205,82 @@ fun SignupScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // ------------------ Login Form -------------------------
+            // ------------------ Signup Form -------------------------
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.Start
             ) {
+                // Name
+                Text(
+                    text = " FULL NAME",
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    placeholder = { Text("John Doe", color = Color.Gray) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Person,
+                            contentDescription = "Name",
+                            tint = Color.DarkGray,
+                            modifier = Modifier.size(24.dp))
+                    },
+                    modifier = Modifier
+                        .background(Color(0xFFE4E9ED), RoundedCornerShape(12.dp))
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 16.sp, color = Color.Black)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Phone Number
+                Text(
+                    text = " PHONE NUMBER",
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = { phoneNumber = it },
+                    placeholder = { Text("+91 98765 43210", color = Color.Gray) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Phone,
+                            contentDescription = "Phone",
+                            tint = Color.DarkGray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .background(Color(0xFFE4E9ED), RoundedCornerShape(12.dp))
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    ),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    textStyle = TextStyle(fontSize = 16.sp, color = Color.Black)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Email field
                 Text(
                     text = " EMAIL ADDRESS",
@@ -310,8 +396,8 @@ fun SignupScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
                     placeholder = {
                         Text(text = "••••••••", color = Color.Gray)
                     },
@@ -339,18 +425,14 @@ fun SignupScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val image = if (isPasswordVisible)
-                            Icons.Outlined.Visibility
-                        else
-                            Icons.Outlined.VisibilityOff
-
-                        val description = if (isPasswordVisible)
-                            "Hide Password"
-                        else
-                            "Show Password"
-
-                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                            Icon(imageVector = image, contentDescription = description)
+                        IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isConfirmPasswordVisible)
+                                    Icons.Outlined.Visibility else
+                                Icons.Outlined.VisibilityOff,
+                                contentDescription = if (isConfirmPasswordVisible)
+                                "Hide" else "Show"
+                            )
                         }
                     },
                     textStyle = TextStyle(
@@ -375,9 +457,18 @@ fun SignupScreen(
             // Signup button
             Button(
                 onClick = {
-                    authViewModel.signup(email, password)
+                    if (password != confirmPassword) {
+                        Toast.makeText(context, "Passwords do not match",
+                            Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    authViewModel.signup(email, password, name, phoneNumber)
                 },
-                enabled = authViewModel.isEmailValid(email) && password.length >= 6 && authState != AuthState.Loading,
+                enabled = name.isNotBlank()
+                        && phoneNumber.isNotBlank()
+                        && authViewModel.isEmailValid(email)
+                        && password.length >= 6
+                        && authState.value != AuthState.Loading,
                 shape = RoundedCornerShape(4.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -439,6 +530,8 @@ fun SignupScreen(
                     style = MaterialTheme.typography.labelSmall
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         // Loading Overlay

@@ -136,7 +136,7 @@ fun SOSScreen(
 
                 // Show success snackbar
                 snackbarHostState.showSnackbar(
-                    "Sent ${state.appNotificationSent} app alerts. Share with others manually."
+                    "Sent ${state.appNotificationSent} app alerts. Share with ${state.nonAppContacts.size} others manually."
                 )
                 sosViewModel.resetState()
             }

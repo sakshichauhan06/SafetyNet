@@ -7,6 +7,7 @@ import android.content.Context
 import com.example.safetynet.data.SafetyPinDao
 import com.example.safetynet.data.UserDao
 import com.example.safetynet.utils.NotificationHelper
+import com.example.safetynet.utils.SOSAlertListener
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.Firebase
@@ -72,6 +73,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideContext(@ApplicationContext context: Context): Context = context
+
+    @Provides
+    @Singleton
+    fun provideSOSAlertListener(@ApplicationContext context: Context):
+    SOSAlertListener {
+        return SOSAlertListener(context)
+    }
 
 //
 //    @Provides

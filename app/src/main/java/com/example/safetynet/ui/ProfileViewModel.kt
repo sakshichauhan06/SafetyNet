@@ -40,7 +40,12 @@ class ProfileViewModel @Inject constructor(
         initialValue = null
     )
 
-    fun updateUserProfile(newName: String, newContact: String, newContactName: String) {
+    fun updateUserProfile(
+        newName: String,
+        newContact: String,
+        newContactName: String,
+        newPhoneNumber: String = ""
+    ) {
         val currentUid = firebaseAuth.currentUser?.uid ?: return
         val currentEmail = firebaseAuth.currentUser?.email ?: ""
 
@@ -51,6 +56,7 @@ class ProfileViewModel @Inject constructor(
                     uid = currentUid,
                     name = newName,
                     email = currentEmail,
+                    phoneNumber = newPhoneNumber,
                     emergencyContact = newContact,
                     emergencyContactName = newContactName
                 )

@@ -1,5 +1,6 @@
 package com.example.safetynet.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.safetynet.data.TrustedContact
@@ -11,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -23,26 +25,20 @@ class SOSViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    private val senderPhone = FirebaseAuth.getInstance().currentUser?.phoneNumber ?: ""
 
     private val _sosState = MutableStateFlow<SOSState>(SOSState.Idle)
     val sosState: StateFlow<SOSState> = _sosState.asStateFlow()
 
-    fun sendSOSAlert(userName: String, location: com.google.android.gms.maps.model.LatLng) {
+    fun sendSOSAlert(userName: String, location: LatLng) {
         viewModelScope.launch {
             _sosState.value = SOSState.Sending
 
             try {
-//                val contacts = trustedContactRepository
-//                    .getTrustedContacts(userId)
-//                    .collect { it } // as it returns Flow need to adjust is but later
+                val contactList = trustedContactRepository
+                    .getTrustedContacts(userId)
+                    .first() // take first emission and complete
 
-                // for now, fetch once
-                val contactList = firestore.collection("users")
-                    .document(userId)
-                    .collection("trustedContacts")
-                    .get()
-                    .await()
-                    .toObjects(TrustedContact::class.java)
 
                 if (contactList.isEmpty()) {
                     _sosState.value = SOSState.Error("Add trusted contacts first")
@@ -53,7 +49,7 @@ class SOSViewModel @Inject constructor(
 
                 // Save FCM notifications to Firestore for app users
                 appUsers.forEach { contact ->
-                    savePendingNotification(contact, userName, location)
+                    saveSOSAlert(contact, userName, location)
                 }
 
                 _sosState.value = SOSState.Success(
@@ -68,20 +64,29 @@ class SOSViewModel @Inject constructor(
         }
     }
 
-    private suspend fun savePendingNotification(
+    private suspend fun saveSOSAlert(
         contact: TrustedContact,
         senderName: String,
         location: LatLng
     ) {
-        firestore.collection("pendingNotifications").add(mapOf(
+        val alertData = hashMapOf(
+            "senderName" to senderName,
+            "senderPhone" to senderPhone,
             "recipientPhone" to contact.phoneNumber,
-            "title" to "🚨 SOS from $senderName",
-            "body" to "Your trusted contact needs help!",
-            "latitude" to location.latitude,
-            "longitude" to location.longitude,
+            "location" to "${location.latitude}, ${location.longitude}",
+            "locationUrl" to "https://maps.google.com/?q=${location.latitude},${location.longitude}",
             "timestamp" to System.currentTimeMillis(),
-            "read" to false
-        )).await()
+            "read" to false,
+            "type" to "SOS"
+        )
+
+        firestore.collection("sosAlerts")
+            .document(contact.phoneNumber)
+            .collection("alerts")
+            .add(alertData)
+            .await()
+
+        Log.d("SOSViewModel", "SOS alert saved for ${contact.phoneNumber}")
     }
 
     private fun buildSOSMessage(userName: String, location: LatLng): String {
